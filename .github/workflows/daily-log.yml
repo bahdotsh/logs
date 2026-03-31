@@ -1,0 +1,89 @@
+name: Daily Log
+
+on:
+  schedule:
+    # 7:30 PM UTC = 1:00 AM IST next day
+    - cron: '30 19 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Date to fetch (YYYY-MM-DD). Defaults to yesterday IST.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  fetch-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch PRs
+        id: fetch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USERNAME: bahdotsh
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          if [ -z "$DATE" ]; then
+            # Calculate yesterday in IST (UTC+5:30)
+            DATE=$(TZ='Asia/Kolkata' date -d 'yesterday' '+%Y-%m-%d' 2>/dev/null || \
+                   python3 -c "from datetime import datetime,timedelta,timezone; print((datetime.now(timezone(timedelta(hours=5,minutes=30)))-timedelta(days=1)).strftime('%Y-%m-%d'))")
+          fi
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          python3 scripts/generate.py --fetch --date "$DATE"
+
+      - name: Check for new data
+        id: check
+        run: |
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard data/)" ]; then
+            echo "has_new_data=false" >> "$GITHUB_OUTPUT"
+            echo "No new data to commit"
+          else
+            echo "has_new_data=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit data
+        if: steps.check.outputs.has_new_data == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git commit -m "data: add log for ${{ steps.fetch.outputs.date }}"
+          git push
+
+      - name: Build site
+        if: steps.check.outputs.has_new_data == 'true' || github.event_name == 'workflow_dispatch'
+        run: python3 scripts/generate.py --build
+
+      - name: Setup Pages
+        if: steps.check.outputs.has_new_data == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        if: steps.check.outputs.has_new_data == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        if: steps.check.outputs.has_new_data == 'true' || github.event_name == 'workflow_dispatch'
+        id: deployment
+        uses: actions/deploy-pages@v4

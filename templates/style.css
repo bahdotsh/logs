@@ -1,0 +1,280 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #0d1117;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --border: #21262d;
+    --accent: #58a6ff;
+    --accent-hover: #79c0ff;
+    --card-bg: #161b22;
+    --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* Header */
+
+header {
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+header h1 a {
+    color: var(--text);
+}
+
+header h1 a:hover {
+    text-decoration: none;
+    color: var(--accent);
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+/* Repo filter bar */
+
+.repo-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.filter-btn {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+}
+
+/* Index page - day entries list */
+
+.day-entry {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.day-entry:last-child {
+    border-bottom: none;
+}
+
+.day-entry a.day-link {
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.day-entry a.day-link:hover {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.day-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+}
+
+.day-repos {
+    margin-top: 0.4rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.repo-tag {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    background: var(--card-bg);
+    color: var(--text-muted);
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+}
+
+/* Entry page */
+
+.entry-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-size: 0.85rem;
+}
+
+.entry-nav a {
+    font-family: var(--mono);
+}
+
+.entry-date {
+    font-family: var(--mono);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.entry-summary {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+/* Repo sections within an entry */
+
+.repo-section {
+    margin-bottom: 2rem;
+}
+
+.repo-section h3 {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.repo-section h3 a {
+    color: var(--text);
+}
+
+.repo-section h3 a:hover {
+    color: var(--accent);
+}
+
+/* PR items */
+
+.pr-item {
+    padding: 0.75rem 0;
+}
+
+.pr-item + .pr-item {
+    border-top: 1px dashed var(--border);
+}
+
+.pr-title a {
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-underline-offset: 3px;
+}
+
+.pr-title a:hover {
+    text-decoration-color: var(--accent);
+}
+
+.pr-body {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    line-height: 1.5;
+}
+
+.pr-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.4rem;
+}
+
+.pr-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+}
+
+/* Empty state */
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 0;
+    color: var(--text-muted);
+}
+
+.empty-state p {
+    font-size: 1rem;
+}
+
+/* Footer */
+
+footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+    body {
+        padding: 1.25rem 1rem;
+    }
+
+    header {
+        margin-bottom: 2rem;
+    }
+
+    .entry-date {
+        font-size: 1.2rem;
+    }
+}

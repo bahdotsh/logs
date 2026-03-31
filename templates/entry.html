@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{date}} &mdash; logs.gokuls.in</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <header>
+        <h1><a href="/">logs.gokuls.in</a></h1>
+        <p class="subtitle">open source activity log</p>
+    </header>
+    <nav class="entry-nav">
+        {{prev_link}}
+        <a href="/">all entries</a>
+        {{next_link}}
+    </nav>
+    <main>
+        <article>
+            <h2 class="entry-date">{{date_display}}</h2>
+            <p class="entry-summary">{{pr_count}} pull request{{pr_plural}} merged across {{repo_count}} repo{{repo_plural}}</p>
+            {{repo_sections}}
+        </article>
+    </main>
+    <footer>
+        <p>auto-generated daily from public GitHub activity &middot; <a href="https://github.com/bahdotsh/logs">source</a></p>
+    </footer>
+</body>
+</html>

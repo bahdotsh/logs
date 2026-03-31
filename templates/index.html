@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>logs.gokuls.in</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1><a href="/">logs.gokuls.in</a></h1>
+        <p class="subtitle">open source activity log</p>
+    </header>
+    {{repo_filter}}
+    <main>
+        {{entries}}
+    </main>
+    <footer>
+        <p>auto-generated daily from public GitHub activity &middot; <a href="https://github.com/bahdotsh/logs">source</a></p>
+    </footer>
+    <script>
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelector('.filter-btn.active').classList.remove('active');
+            btn.classList.add('active');
+            const repo = btn.dataset.repo;
+            document.querySelectorAll('.day-entry').forEach(entry => {
+                if (repo === 'all' || entry.dataset.repos.split(' ').includes(repo)) {
+                    entry.style.display = '';
+                } else {
+                    entry.style.display = 'none';
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>
