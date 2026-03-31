@@ -153,7 +153,7 @@ def build_index(entries: list[dict], template: str) -> str:
             date_str = entry["date"]
             prs = entry["prs"]
             repos = sorted(set(pr["repo"] for pr in prs))
-            repo_tags = "".join(f'<span class="repo-tag">{r}</span>' for r in repos)
+            repo_tags = "".join(f'<a class="repo-tag" href="entries/{date_str}.html?repo={urllib.parse.quote(r, safe="")}">{r}</a>' for r in repos)
             repos_attr = " ".join(repos)
 
             parts.append(
@@ -205,7 +205,7 @@ def build_entry(entry: dict, template: str, prev_date: str | None, next_date: st
 
         repo_url = repos[repo][0]["repo_url"]
         repo_sections.append(
-            f"""<section class="repo-section">
+            f"""<section class="repo-section" data-repo="{repo}">
     <h3><a href="{repo_url}">{repo}</a></h3>
     {"".join(pr_items)}
 </section>"""

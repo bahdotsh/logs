@@ -19,19 +19,20 @@
         <p>auto-generated daily from public GitHub activity &middot; <a href="https://github.com/bahdotsh/logs">source</a></p>
     </footer>
     <script>
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelector('.filter-btn.active').classList.remove('active');
-            btn.classList.add('active');
-            const repo = btn.dataset.repo;
-            document.querySelectorAll('.day-entry').forEach(entry => {
-                if (repo === 'all' || entry.dataset.repos.split(' ').includes(repo)) {
-                    entry.style.display = '';
-                } else {
-                    entry.style.display = 'none';
-                }
-            });
+    function filterByRepo(repo) {
+        document.querySelector('.filter-btn.active').classList.remove('active');
+        const target = document.querySelector(`.filter-btn[data-repo="${repo}"]`);
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.day-entry').forEach(entry => {
+            if (repo === 'all' || entry.dataset.repos.split(' ').includes(repo)) {
+                entry.style.display = '';
+            } else {
+                entry.style.display = 'none';
+            }
         });
+    }
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => filterByRepo(btn.dataset.repo));
     });
     </script>
 </body>

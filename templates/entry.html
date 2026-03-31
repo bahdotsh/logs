@@ -26,5 +26,16 @@
     <footer>
         <p>auto-generated daily from public GitHub activity &middot; <a href="https://github.com/bahdotsh/logs">source</a></p>
     </footer>
+    <script>
+    const params = new URLSearchParams(window.location.search);
+    const repo = params.get('repo');
+    if (repo) {
+        document.querySelectorAll('.repo-section').forEach(section => {
+            if (section.dataset.repo !== repo) {
+                section.style.display = 'none';
+            }
+        });
+    }
+    </script>
 </body>
 </html>

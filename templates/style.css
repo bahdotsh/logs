@@ -7,13 +7,19 @@
 }
 
 :root {
-    --bg: #0d1117;
-    --text: #e6edf3;
-    --text-muted: #8b949e;
-    --border: #21262d;
-    --accent: #58a6ff;
-    --accent-hover: #79c0ff;
-    --card-bg: #161b22;
+    --bg: #0a0a0a;
+    --text: #e0e0e0;
+    --text-muted: #6e7681;
+    --text-secondary: #9ca3af;
+    --border: #1a1a2e;
+    --accent: #6c63ff;
+    --accent-hover: #8b83ff;
+    --accent-glow: rgba(108, 99, 255, 0.15);
+    --card-bg: #111118;
+    --card-border: #1c1c2e;
+    --card-hover: #16161f;
+    --label-bg: rgba(108, 99, 255, 0.1);
+    --label-border: rgba(108, 99, 255, 0.25);
     --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
     --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
@@ -23,38 +29,41 @@ body {
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
-    max-width: 720px;
+    max-width: 740px;
     margin: 0 auto;
-    padding: 2rem 1.5rem;
+    padding: 3rem 1.5rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 a {
     color: var(--accent);
     text-decoration: none;
+    transition: color 0.15s ease;
 }
 
 a:hover {
     color: var(--accent-hover);
-    text-decoration: underline;
 }
 
 /* Header */
 
 header {
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border);
 }
 
 header h1 {
     font-family: var(--mono);
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
 }
 
 header h1 a {
     color: var(--text);
+    transition: color 0.15s ease;
 }
 
 header h1 a:hover {
@@ -64,8 +73,9 @@ header h1 a:hover {
 
 .subtitle {
     color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    letter-spacing: 0.02em;
 }
 
 /* Repo filter bar */
@@ -73,76 +83,97 @@ header h1 a:hover {
 .repo-filter {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4rem;
     margin-bottom: 2rem;
 }
 
 .filter-btn {
     font-family: var(--mono);
-    font-size: 0.8rem;
-    padding: 0.35rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: transparent;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    background: var(--card-bg);
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
 }
 
 .filter-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
+    background: var(--accent-glow);
 }
 
 .filter-btn.active {
     background: var(--accent);
     border-color: var(--accent);
-    color: var(--bg);
+    color: #fff;
+    box-shadow: 0 0 12px var(--accent-glow);
 }
 
 /* Index page - day entries list */
 
 .day-entry {
-    padding: 1.25rem 0;
-    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
-.day-entry:last-child {
-    border-bottom: none;
+.day-entry:hover {
+    background: var(--card-hover);
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
 }
 
 .day-entry a.day-link {
     font-family: var(--mono);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 500;
     color: var(--text);
+    transition: color 0.15s ease;
+}
+
+.day-entry:hover a.day-link {
+    color: var(--accent);
 }
 
 .day-entry a.day-link:hover {
-    color: var(--accent);
     text-decoration: none;
 }
 
 .day-meta {
     color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
 }
 
 .day-repos {
-    margin-top: 0.4rem;
+    margin-top: 0.5rem;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 0.35rem;
 }
 
 .repo-tag {
     font-family: var(--mono);
-    font-size: 0.75rem;
-    background: var(--card-bg);
-    color: var(--text-muted);
-    padding: 0.15rem 0.5rem;
-    border-radius: 3px;
+    font-size: 0.7rem;
+    background: var(--label-bg);
+    color: var(--text-secondary);
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    border: 1px solid var(--label-border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.repo-tag:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
 }
 
 /* Entry page */
@@ -152,43 +183,61 @@ header h1 a:hover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    padding: 0.6rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
 }
 
 .entry-nav a {
     font-family: var(--mono);
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+}
+
+.entry-nav a:hover {
+    color: var(--accent);
 }
 
 .entry-date {
     font-family: var(--mono);
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 0.25rem;
+    letter-spacing: -0.02em;
 }
 
 .entry-summary {
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
 }
 
 /* Repo sections within an entry */
 
 .repo-section {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .repo-section h3 {
     font-family: var(--mono);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid var(--border);
+    padding: 0.7rem 1rem;
+    background: rgba(108, 99, 255, 0.05);
+    border-bottom: 1px solid var(--card-border);
 }
 
 .repo-section h3 a {
-    color: var(--text);
+    color: var(--text-secondary);
+    transition: color 0.15s ease;
 }
 
 .repo-section h3 a:hover {
@@ -198,29 +247,27 @@ header h1 a:hover {
 /* PR items */
 
 .pr-item {
-    padding: 0.75rem 0;
+    padding: 0.85rem 1rem;
 }
 
 .pr-item + .pr-item {
-    border-top: 1px dashed var(--border);
+    border-top: 1px solid var(--card-border);
 }
 
 .pr-title a {
-    color: var(--accent);
+    color: var(--text);
     font-weight: 500;
-    font-size: 0.95rem;
-    text-decoration: underline;
-    text-decoration-color: var(--border);
-    text-underline-offset: 3px;
+    font-size: 0.9rem;
+    transition: color 0.15s ease;
 }
 
 .pr-title a:hover {
-    text-decoration-color: var(--accent);
+    color: var(--accent);
 }
 
 .pr-body {
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     margin-top: 0.3rem;
     line-height: 1.5;
 }
@@ -229,28 +276,29 @@ header h1 a:hover {
     display: flex;
     flex-wrap: wrap;
     gap: 0.3rem;
-    margin-top: 0.4rem;
+    margin-top: 0.5rem;
 }
 
 .pr-label {
     font-family: var(--mono);
-    font-size: 0.7rem;
-    padding: 0.1rem 0.4rem;
-    border-radius: 3px;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    border: 1px solid var(--label-border);
+    background: var(--label-bg);
+    color: var(--accent);
 }
 
 /* Empty state */
 
 .empty-state {
     text-align: center;
-    padding: 4rem 0;
+    padding: 5rem 0;
     color: var(--text-muted);
 }
 
 .empty-state p {
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 /* Footer */
@@ -260,21 +308,31 @@ footer {
     padding-top: 1.5rem;
     border-top: 1px solid var(--border);
     color: var(--text-muted);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    text-align: center;
 }
 
 /* Responsive */
 
 @media (max-width: 600px) {
     body {
-        padding: 1.25rem 1rem;
+        padding: 1.5rem 1rem;
     }
 
     header {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .entry-date {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+    }
+
+    .day-entry {
+        padding: 0.85rem 1rem;
+    }
+
+    .entry-nav {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
     }
 }
