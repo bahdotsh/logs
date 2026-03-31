@@ -78,38 +78,146 @@ header h1 a:hover {
     letter-spacing: 0.02em;
 }
 
-/* Repo filter bar */
+/* Repo filter - searchable dropdown */
 
 .repo-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
+    position: relative;
     margin-bottom: 2rem;
 }
 
-.filter-btn {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    padding: 0.3rem 0.7rem;
-    border: 1px solid var(--card-border);
-    border-radius: 6px;
+.filter-input-wrap {
+    display: flex;
+    align-items: center;
     background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.2s ease;
+}
+
+.filter-input-wrap:focus-within {
+    border-color: var(--accent);
+}
+
+.filter-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    min-width: 0;
+}
+
+.filter-input::placeholder {
+    color: var(--text-muted);
+}
+
+.filter-count {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+    white-space: nowrap;
+}
+
+.filter-clear {
+    display: none;
+    background: none;
+    border: none;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.2s ease;
+    font-size: 1.1rem;
+    padding: 0 0.25rem;
+    margin-left: 0.5rem;
+    line-height: 1;
+    transition: color 0.15s ease;
 }
 
-.filter-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+.filter-clear:hover {
+    color: var(--text);
+}
+
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    padding: 0.25rem 0;
+}
+
+.filter-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.filter-dropdown::-webkit-scrollbar-thumb {
+    background: var(--card-border);
+    border-radius: 3px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.45rem 0.75rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s ease;
+}
+
+.filter-option:hover {
     background: var(--accent-glow);
+    color: var(--accent);
 }
 
-.filter-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-    box-shadow: 0 0 12px var(--accent-glow);
+.filter-option.active {
+    color: var(--accent);
+}
+
+.filter-option-all {
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.5rem;
+}
+
+.filter-option-count {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+}
+
+.filter-group-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0.75rem 0.2rem;
+    letter-spacing: 0.03em;
+}
+
+.filter-empty {
+    padding: 1rem 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-align: center;
 }
 
 /* Index page - day entries list */

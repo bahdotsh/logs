@@ -139,21 +139,38 @@ def build_index(entries: list[dict], template: str) -> str:
         entries_html = '<div class="empty-state"><p>No log entries yet. Check back soon.</p></div>'
         repo_filter = ""
     else:
-        # Collect all unique repos across all entries
+        # Collect all unique repos across all entries with PR counts
         all_repos = sorted(set(pr["repo"] for entry in entries for pr in entry["prs"]))
-
-        # Build repo filter bar
-        filter_buttons = '<button class="filter-btn active" data-repo="all">All</button>'
+        repo_pr_counts = {}
         for repo in all_repos:
-            filter_buttons += f'<button class="filter-btn" data-repo="{repo}">{repo}</button>'
-        repo_filter = f'<nav class="repo-filter">{filter_buttons}</nav>'
+            repo_pr_counts[repo] = sum(
+                1 for entry in entries for pr in entry["prs"] if pr["repo"] == repo
+            )
+        repo_data = json.dumps(
+            [{"name": r, "count": repo_pr_counts[r]} for r in all_repos]
+        )
+
+        # Build searchable repo filter
+        n = len(all_repos)
+        repo_filter = (
+            f'<div class="repo-filter" id="repoFilter">'
+            f'<div class="filter-input-wrap">'
+            f'<input type="text" class="filter-input" id="filterInput" '
+            f'placeholder="Filter by repository..." autocomplete="off" spellcheck="false">'
+            f'<span class="filter-count" id="filterCount">{n} repo{"s" if n != 1 else ""}</span>'
+            f'<button class="filter-clear" id="filterClear">&times;</button>'
+            f'</div>'
+            f'<div class="filter-dropdown" id="filterDropdown"></div>'
+            f'</div>'
+            f'<script>var REPO_DATA={repo_data};</script>'
+        )
 
         parts = []
         for entry in entries:
             date_str = entry["date"]
             prs = entry["prs"]
             repos = sorted(set(pr["repo"] for pr in prs))
-            repo_tags = "".join(f'<a class="repo-tag" href="entries/{date_str}.html?repo={urllib.parse.quote(r, safe="")}">{r}</a>' for r in repos)
+            repo_tags = "".join(f'<a class="repo-tag" href="#" data-repo="{r}">{r}</a>' for r in repos)
             repos_attr = " ".join(repos)
 
             parts.append(

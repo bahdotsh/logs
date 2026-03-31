@@ -19,21 +19,141 @@
         <p>auto-generated daily from public GitHub activity &middot; <a href="https://github.com/bahdotsh/logs">source</a></p>
     </footer>
     <script>
-    function filterByRepo(repo) {
-        document.querySelector('.filter-btn.active').classList.remove('active');
-        const target = document.querySelector(`.filter-btn[data-repo="${repo}"]`);
-        if (target) target.classList.add('active');
-        document.querySelectorAll('.day-entry').forEach(entry => {
-            if (repo === 'all' || entry.dataset.repos.split(' ').includes(repo)) {
-                entry.style.display = '';
+    (function() {
+        if (typeof REPO_DATA === 'undefined') return;
+        var input = document.getElementById('filterInput');
+        var dropdown = document.getElementById('filterDropdown');
+        var clearBtn = document.getElementById('filterClear');
+        var countEl = document.getElementById('filterCount');
+        var filterWrap = document.getElementById('repoFilter');
+        var activeRepo = 'all';
+        var isOpen = false;
+
+        function groupByOwner(repos) {
+            var groups = {};
+            repos.forEach(function(r) {
+                var owner = r.name.split('/')[0];
+                if (!groups[owner]) groups[owner] = [];
+                groups[owner].push(r);
+            });
+            return groups;
+        }
+
+        function renderDropdown(filter) {
+            var q = (filter || '').toLowerCase();
+            var filtered = q
+                ? REPO_DATA.filter(function(r) { return r.name.toLowerCase().includes(q); })
+                : REPO_DATA;
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="filter-empty">No matching repos</div>';
+                showDropdown();
+                return;
+            }
+            var groups = groupByOwner(filtered);
+            var ownerKeys = Object.keys(groups).sort();
+            var multiOwner = ownerKeys.length > 1;
+            var html = '<button class="filter-option filter-option-all' +
+                (activeRepo === 'all' ? ' active' : '') +
+                '" data-repo="all">All repositories<span class="filter-option-count">' +
+                REPO_DATA.length + '</span></button>';
+            ownerKeys.forEach(function(owner) {
+                if (multiOwner) {
+                    html += '<div class="filter-group-label">' + owner + '</div>';
+                }
+                groups[owner].forEach(function(repo) {
+                    var cls = repo.name === activeRepo ? ' active' : '';
+                    html += '<button class="filter-option' + cls + '" data-repo="' +
+                        repo.name + '"><span class="filter-option-name">' + repo.name +
+                        '</span><span class="filter-option-count">' + repo.count +
+                        '</span></button>';
+                });
+            });
+            dropdown.innerHTML = html;
+            showDropdown();
+            dropdown.querySelectorAll('.filter-option').forEach(function(opt) {
+                opt.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    selectRepo(opt.dataset.repo);
+                });
+            });
+        }
+
+        function showDropdown() { dropdown.style.display = 'block'; isOpen = true; }
+        function hideDropdown() { dropdown.style.display = 'none'; isOpen = false; }
+
+        function selectRepo(repo) {
+            activeRepo = repo;
+            hideDropdown();
+            if (repo === 'all') {
+                input.value = '';
+                clearBtn.style.display = 'none';
+                countEl.style.display = '';
             } else {
-                entry.style.display = 'none';
+                input.value = repo;
+                clearBtn.style.display = '';
+                countEl.style.display = 'none';
+            }
+            filterEntries(repo);
+            input.blur();
+        }
+
+        function filterEntries(repo) {
+            document.querySelectorAll('.day-entry').forEach(function(entry) {
+                if (repo === 'all' || entry.dataset.repos.split(' ').includes(repo)) {
+                    entry.style.display = '';
+                } else {
+                    entry.style.display = 'none';
+                }
+            });
+        }
+
+        input.addEventListener('focus', function() { renderDropdown(input.value); });
+        input.addEventListener('input', function() {
+            renderDropdown(input.value);
+            var q = input.value.toLowerCase();
+            if (!q) {
+                activeRepo = 'all';
+                clearBtn.style.display = 'none';
+                countEl.style.display = '';
+                document.querySelectorAll('.day-entry').forEach(function(e) { e.style.display = ''; });
+            } else {
+                clearBtn.style.display = '';
+                countEl.style.display = 'none';
+                document.querySelectorAll('.day-entry').forEach(function(entry) {
+                    var repos = entry.dataset.repos.split(' ');
+                    entry.style.display = repos.some(function(r) {
+                        return r.toLowerCase().includes(q);
+                    }) ? '' : 'none';
+                });
             }
         });
-    }
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => filterByRepo(btn.dataset.repo));
-    });
+
+        clearBtn.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            selectRepo('all');
+        });
+
+        input.addEventListener('blur', function() { setTimeout(hideDropdown, 200); });
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { hideDropdown(); input.blur(); }
+            if (e.key === 'Enter' && isOpen) {
+                var opts = dropdown.querySelectorAll('.filter-option:not(.filter-option-all)');
+                if (opts.length === 1) selectRepo(opts[0].dataset.repo);
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!filterWrap.contains(e.target)) hideDropdown();
+        });
+
+        // Repo tags on entries trigger the filter
+        document.querySelectorAll('.day-repos .repo-tag').forEach(function(tag) {
+            tag.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectRepo(tag.dataset.repo);
+            });
+        });
+    })();
     </script>
 </body>
 </html>
