@@ -1,0 +1,86 @@
+{
+  "date": "2026-03-31",
+  "prs": [
+    {
+      "title": "fix(executor): support job-level container directive",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/71",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- Parse and support the GitHub Actions `container` directive at the job level, handling both string (`container: node:18`) and object (`container: { image: ..., env: ..., volumes: ... }`)...",
+      "labels": [],
+      "merged_at": "2026-03-31T13:46:16Z"
+    },
+    {
+      "title": "fix: resolve action.yml from remote repos to determine correct Docker image",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/70",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\nFixes #48.\n\n- **New `action_resolver` module** fetches `action.yml` / `action.yaml` from `raw.githubusercontent.com` for third-party actions and parses `runs.using` to determine the...",
+      "labels": [],
+      "merged_at": "2026-03-31T11:41:09Z"
+    },
+    {
+      "title": "feat: add help overlay, mark-all-read, tree view, mouse, and configurable keybindings",
+      "url": "https://github.com/bahdotsh/feedr/pull/36",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "## Summary\n\n- **Module split**: Decomposed `ui.rs` (2872 lines) into 10 modules under `src/ui/` and extracted `events.rs` from `tui.rs` for maintainability\n- **8 new features** spanning high-impact...",
+      "labels": [],
+      "merged_at": "2026-03-31T09:39:02Z"
+    },
+    {
+      "title": "feat: add external post support",
+      "url": "https://github.com/bahdotsh/blogr/pull/103",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "## Summary\n\nAdds support for **external posts** \u2014 posts that appear in all blog listings but link to an external URL instead of having local content. This lets blog authors curate articles they've...",
+      "labels": [],
+      "merged_at": "2026-03-31T08:07:47Z"
+    },
+    {
+      "title": "feat: auto-discover RSS/Atom feeds from HTML pages",
+      "url": "https://github.com/bahdotsh/feedr/pull/35",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "## Summary\n\nCloses #32\n\nWhen a user adds a regular web page URL instead of a direct feed URL, feedr now auto-discovers RSS/Atom feed links from `<link rel=\"alternate\">` elements in the HTML:\n\n-...",
+      "labels": [],
+      "merged_at": "2026-03-31T07:12:16Z"
+    },
+    {
+      "title": "feat(mcp): compact output for compound callers and batch summaries",
+      "url": "https://github.com/bahdotsh/indxr/pull/17",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- `find(mode: \"callers\")` and `summarize(glob)` compound tools now return compact columnar `{columns, rows}` format by default, matching how symbol/signature/relevant modes already...",
+      "labels": [],
+      "merged_at": "2026-03-31T07:02:24Z"
+    },
+    {
+      "title": "fix(search): insert spaces at block boundaries in plain text extraction",
+      "url": "https://github.com/bahdotsh/blogr/pull/102",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "## Summary\n\n- Fixes search result excerpts showing sentences mashed together without spaces where paragraph/block boundaries existed in the original markdown\n- Adds space insertion for...",
+      "labels": [],
+      "merged_at": "2026-03-31T07:01:09Z"
+    },
+    {
+      "title": "fix(dashboard): use filtered item list for navigation and actions",
+      "url": "https://github.com/bahdotsh/feedr/pull/34",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "## Summary\n\nFixes #31 \u2014 category switching on the dashboard was broken because event handlers and rendering used different item lists.\n\n- **Rendering** correctly used `filtered_dashboard_items` when...",
+      "labels": [],
+      "merged_at": "2026-03-31T06:17:53Z"
+    },
+    {
+      "title": "feat(mcp): compound tools + benchmark for 5x token reduction",
+      "url": "https://github.com/bahdotsh/indxr/pull/16",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- Replace 12 granular default MCP tools with **3 compound tools** (`find`, `summarize`, `read`) that dispatch to existing implementations \u2014 reduces per-round schema overhead from ~1,100...",
+      "labels": [],
+      "merged_at": "2026-03-31T06:00:20Z"
+    }
+  ]
+}
