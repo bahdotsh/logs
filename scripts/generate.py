@@ -28,14 +28,73 @@ SITE_DIR = ROOT / "_site"
 IST = timezone(timedelta(hours=5, minutes=30))
 
 
-def fetch_prs(date_str: str) -> dict | None:
-    """Fetch PRs merged on the given IST date. Returns None if no PRs found."""
+def _github_headers() -> dict:
+    token = os.environ.get("GITHUB_TOKEN", "")
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "logs-generator",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
+def _get_username() -> str:
     username = os.environ.get("GITHUB_USERNAME")
     if not username:
         print("Error: GITHUB_USERNAME env var not set", file=sys.stderr)
         sys.exit(1)
+    return username
 
-    token = os.environ.get("GITHUB_TOKEN", "")
+
+def _parse_pr_item(item: dict) -> dict:
+    """Parse a GitHub search result item into our PR format."""
+    repo_url = item.get("repository_url", "")
+    repo = "/".join(repo_url.rstrip("/").split("/")[-2:]) if repo_url else ""
+    html_repo_url = f"https://github.com/{repo}" if repo else ""
+    body = item.get("body") or ""
+    labels = [l["name"] for l in item.get("labels", [])]
+    return {
+        "title": item["title"],
+        "url": item["html_url"],
+        "repo": repo,
+        "repo_url": html_repo_url,
+        "body": body,
+        "labels": labels,
+        "merged_at": item.get("pull_request", {}).get("merged_at", ""),
+    }
+
+
+def _search_prs(query: str, headers: dict) -> list[dict]:
+    """Run a GitHub search query with pagination. Returns all matched items."""
+    items = []
+    page = 1
+    while True:
+        url = (
+            f"https://api.github.com/search/issues"
+            f"?q={urllib.parse.quote(query)}&per_page=100&page={page}&sort=updated&order=desc"
+        )
+        req = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            print(f"GitHub API error: {e.code} {e.reason}", file=sys.stderr)
+            body = e.read().decode()
+            print(body, file=sys.stderr)
+            sys.exit(1)
+        page_items = data.get("items", [])
+        items.extend(page_items)
+        if len(items) >= data.get("total_count", 0) or not page_items:
+            break
+        page += 1
+    return items
+
+
+def fetch_prs(date_str: str) -> dict | None:
+    """Fetch PRs merged on the given IST date. Returns None if no PRs found."""
+    username = _get_username()
+    headers = _github_headers()
 
     # Convert IST date boundaries to UTC
     # IST 00:00 = previous day 18:30 UTC
@@ -47,54 +106,15 @@ def fetch_prs(date_str: str) -> dict | None:
     )
 
     query = f"is:pr is:merged is:public author:{username} merged:{utc_start}..{utc_end}"
-    url = f"https://api.github.com/search/issues?q={urllib.parse.quote(query)}&per_page=100&sort=updated&order=desc"
-
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "logs-generator",
-    }
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
 
     print(f"Fetching PRs for {date_str} (UTC range: {utc_start} .. {utc_end})")
 
-    req = urllib.request.Request(url, headers=headers)
-    try:
-        with urllib.request.urlopen(req) as resp:
-            data = json.loads(resp.read().decode())
-    except urllib.error.HTTPError as e:
-        print(f"GitHub API error: {e.code} {e.reason}", file=sys.stderr)
-        body = e.read().decode()
-        print(body, file=sys.stderr)
-        sys.exit(1)
-
-    items = data.get("items", [])
+    items = _search_prs(query, headers)
     if not items:
         print(f"No PRs found for {date_str}")
         return None
 
-    prs = []
-    for item in items:
-        # Extract repo from the URL: https://api.github.com/repos/owner/repo/...
-        repo_url = item.get("repository_url", "")
-        repo = "/".join(repo_url.rstrip("/").split("/")[-2:]) if repo_url else ""
-        html_repo_url = f"https://github.com/{repo}" if repo else ""
-
-        body = item.get("body") or ""
-
-        labels = [l["name"] for l in item.get("labels", [])]
-
-        prs.append(
-            {
-                "title": item["title"],
-                "url": item["html_url"],
-                "repo": repo,
-                "repo_url": html_repo_url,
-                "body": body,
-                "labels": labels,
-                "merged_at": item.get("pull_request", {}).get("merged_at", ""),
-            }
-        )
+    prs = [_parse_pr_item(item) for item in items]
 
     print(f"Found {len(prs)} PR(s) across {len(set(pr['repo'] for pr in prs))} repo(s)")
 
@@ -108,6 +128,64 @@ def fetch_prs(date_str: str) -> dict | None:
     print(f"Saved to {out_path}")
 
     return result
+
+
+def fetch_prs_range(start_str: str) -> list[dict]:
+    """Fetch all PRs from start date (mm/yyyy) until today IST, grouped by day.
+
+    Returns list of daily result dicts that were saved.
+    """
+    username = _get_username()
+    headers = _github_headers()
+
+    # Parse mm/yyyy into first day of month
+    start = datetime.strptime(start_str, "%m/%Y")
+    today_ist = datetime.now(IST).date()
+
+    # UTC boundaries for the full range
+    utc_start = (start - timedelta(hours=5, minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_dt = datetime(today_ist.year, today_ist.month, today_ist.day)
+    utc_end = (end_dt + timedelta(hours=18, minutes=29, seconds=59)).strftime(
+        "%Y-%m-%dT%H:%M:%SZ"
+    )
+
+    query = f"is:pr is:merged is:public author:{username} merged:{utc_start}..{utc_end}"
+
+    print(f"Fetching PRs from {start.strftime('%Y-%m-%d')} to {today_ist} (UTC: {utc_start} .. {utc_end})")
+
+    items = _search_prs(query, headers)
+    if not items:
+        print("No PRs found in range")
+        return []
+
+    prs = [_parse_pr_item(item) for item in items]
+    print(f"Found {len(prs)} total PR(s)")
+
+    # Group by IST date using merged_at
+    by_date: dict[str, list[dict]] = {}
+    for pr in prs:
+        merged_at = pr.get("merged_at", "")
+        if not merged_at:
+            continue
+        # Parse UTC timestamp, convert to IST date
+        merged_utc = datetime.strptime(merged_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        merged_ist = merged_utc.astimezone(IST)
+        day_str = merged_ist.strftime("%Y-%m-%d")
+        by_date.setdefault(day_str, []).append(pr)
+
+    # Save each day's data
+    DATA_DIR.mkdir(exist_ok=True)
+    results = []
+    for day_str in sorted(by_date.keys()):
+        result = {"date": day_str, "prs": by_date[day_str]}
+        out_path = DATA_DIR / f"{day_str}.json"
+        with open(out_path, "w") as f:
+            json.dump(result, f, indent=2)
+        print(f"  {day_str}: {len(by_date[day_str])} PR(s) -> {out_path}")
+        results.append(result)
+
+    print(f"Saved {len(results)} day(s) of data")
+    return results
 
 
 def load_all_data() -> list[dict]:
@@ -567,14 +645,18 @@ def main():
     parser = argparse.ArgumentParser(description="Open source activity log generator")
     parser.add_argument("--fetch", action="store_true", help="Fetch PRs from GitHub")
     parser.add_argument("--date", type=str, help="Date to fetch (YYYY-MM-DD)")
+    parser.add_argument("--range", type=str, help="Fetch PRs from mm/yyyy until today")
     parser.add_argument("--build", action="store_true", help="Build static site")
     parser.add_argument("--demo", action="store_true", help="Build site with sample data for local preview")
 
     args = parser.parse_args()
 
-    if not args.fetch and not args.build and not args.demo:
+    if not args.fetch and not args.range and not args.build and not args.demo:
         parser.print_help()
         sys.exit(1)
+
+    if args.range:
+        fetch_prs_range(args.range)
 
     if args.fetch:
         if not args.date:

@@ -1,0 +1,80 @@
+name: Backfill Logs
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_month:
+        description: 'Start month (mm/yyyy)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  backfill-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate input
+        run: |
+          if ! echo "${{ github.event.inputs.start_month }}" | grep -qE '^(0[1-9]|1[0-2])/[0-9]{4}$'; then
+            echo "Error: Invalid format. Use mm/yyyy (e.g. 01/2026)"
+            exit 1
+          fi
+
+      - name: Fetch PRs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USERNAME: bahdotsh
+        run: python3 scripts/generate.py --range "${{ github.event.inputs.start_month }}"
+
+      - name: Check for new data
+        id: check
+        run: |
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard data/)" ]; then
+            echo "has_new_data=false" >> "$GITHUB_OUTPUT"
+            echo "No new data to commit"
+          else
+            echo "has_new_data=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit data
+        if: steps.check.outputs.has_new_data == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git commit -m "data: backfill logs from ${{ github.event.inputs.start_month }}"
+          git push
+
+      - name: Build site
+        run: python3 scripts/generate.py --build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
