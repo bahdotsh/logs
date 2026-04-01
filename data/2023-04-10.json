@@ -1,0 +1,14 @@
+{
+  "date": "2023-04-10",
+  "prs": [
+    {
+      "title": "Atuin stats with day, month, week and year filter",
+      "url": "https://github.com/atuinsh/atuin/pull/858",
+      "repo": "atuinsh/atuin",
+      "repo_url": "https://github.com/atuinsh/atuin",
+      "body": "Filter `atuin stats` with day, week, month and year filer by using `atuin stats today`, `atuin stats week`, `atuin stats month`, `atuin stats year`.",
+      "labels": [],
+      "merged_at": "2023-04-10T15:50:25Z"
+    }
+  ]
+}

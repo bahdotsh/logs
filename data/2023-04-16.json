@@ -1,0 +1,14 @@
+{
+  "date": "2023-04-16",
+  "prs": [
+    {
+      "title": "Use clap to parse arguments and use `is-terminal` instead of `atty`",
+      "url": "https://github.com/bahdotsh/zp/pull/15",
+      "repo": "bahdotsh/zp",
+      "repo_url": "https://github.com/bahdotsh/zp",
+      "body": "",
+      "labels": [],
+      "merged_at": "2023-04-16T09:59:50Z"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "date": "2023-04-03",
+  "prs": [
+    {
+      "title": "improved language and corrected spelling mistakes in README.md",
+      "url": "https://github.com/rustdesk/rustdesk-server/pull/236",
+      "repo": "rustdesk/rustdesk-server",
+      "repo_url": "https://github.com/rustdesk/rustdesk-server",
+      "body": "",
+      "labels": [],
+      "merged_at": "2023-04-03T07:37:22Z"
+    }
+  ]
+}

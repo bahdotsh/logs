@@ -1,0 +1,23 @@
+{
+  "date": "2023-04-13",
+  "prs": [
+    {
+      "title": "std buffer manipulations",
+      "url": "https://github.com/bahdotsh/zp/pull/10",
+      "repo": "bahdotsh/zp",
+      "repo_url": "https://github.com/bahdotsh/zp",
+      "body": "",
+      "labels": [],
+      "merged_at": "2023-04-13T13:43:52Z"
+    },
+    {
+      "title": "Cross platform compatibility and description",
+      "url": "https://github.com/bahdotsh/zp/pull/7",
+      "repo": "bahdotsh/zp",
+      "repo_url": "https://github.com/bahdotsh/zp",
+      "body": "",
+      "labels": [],
+      "merged_at": "2023-04-13T06:38:29Z"
+    }
+  ]
+}
