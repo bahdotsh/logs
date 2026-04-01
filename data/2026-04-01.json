@@ -1,0 +1,23 @@
+{
+  "date": "2026-04-01",
+  "prs": [
+    {
+      "title": "fix: resolve correctness, security, and parsing bugs across codebase",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/73",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\nComprehensive bug fix pass addressing correctness, security, and parsing issues discovered during full codebase verification.\n\n**Key fixes:**\n- **Security (critical):** Fix AES-GCM nonce reuse in `EncryptedSecretStore` \u2014 each secret now gets a unique random nonce prepended to its ciphertext\n- **Executor:** Implement `continue-on-error` and step-level `if` condition support, fix hardcoded `show_action_messages` flag, replace inline regex hacks with proper `substitution::process_step_run`, skip symlinks during directory copy, validate volume host paths for traversal\n- **Parser:** Add `Strategy` wrapper to correctly model GitHub Actions `strategy.matrix` structure, add new `Step` fields (`if`, `id`, `working-directory`, `shell`, `timeout-minutes`, `continue-on-error`)\n- **Models:** Handle GitLab `script`/`before_script`/`after_script` as string-or-vec, coerce variable values to strings, add `CacheKey` enum, fix `Rule.if` serde rename, add `needs`/`interruptible`/`reports`/`default` fields\n- **Validators:** Fix reusable workflow reference validation logic (`||` \u2192 `&&`), add proper cron syntax validation, add cyclic `needs` detection via DFS, fix GitLab artifact validation for reports-only artifacts\n- **GitHub/GitLab:** Fix default branch detection to use remote HEAD, replace `curl` shell-out with `reqwest`\n- **UI:** Fix `Box::leak` memory leak in status bar, fix unsafe string slicing in workflow path display, wire `show_action_messages` through TUI\n- **CLI:** Remove dead `if true` block, fix `validate_github_workflow` to call evaluator directly, handle `read_dir` errors gracefully\n\n**Breaking change:** `EncryptedSecretStore` serialization format changed (nonce field removed). See `BREAKING_CHANGES.md`.\n\n## Test plan\n\n- [x] `cargo check` passes\n- [x] `cargo clippy` passes with no warnings\n- [x] `cargo fmt` produces no changes\n- [x] All 159 tests pass, including 19 new tests:\n  - Matrix include/exclude merge semantics (5 tests)\n  - Step condition evaluation for unsupported expressions (6 tests)\n  - Volume path traversal edge cases (2 tests)\n  - Continue-on-error and step-level `if` parsing (1 test)\n  - Per-secret unique nonce verification (1 test)\n  - Cyclic `needs` detection (1 test)\n  - Cron syntax validation (7 tests)\n  - Strategy/matrix parsing (1 test)\n  - Step field parsing (1 test)",
+      "labels": [],
+      "merged_at": "2026-04-01T17:36:49Z"
+    },
+    {
+      "title": "fix: correct multiple bugs found during full codebase review",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/72",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- **Docker `build_image_inner` mtime bug**: Used `.elapsed()` instead of `.duration_since(UNIX_EPOCH)` \u2014 tar timestamps were \"seconds since modification\" instead of actual Unix timestamps\n- **Docker `logs()` missing options**: Was passing `None` for log options, not explicitly requesting stdout/stderr streams\n- **Emulation runtime exit code inconsistency**: Returned `Err` on non-zero exit codes (swallowing stdout/stderr), while Docker/Podman return `Ok` with the exit code \u2014 engine already handles non-zero in the `Ok` path\n- **UI `previous_job()` missing bounds check**: `next_job()` had a `.filter()` guard against stale indices, `previous_job()` did not \u2014 potential panic\n- **Log processor UTF-8 safety**: String slicing without `is_char_boundary()` checks could panic on multi-byte characters\n- **Step validation logic error**: Steps with only `name` (no `uses` or `run`) incorrectly passed validation\n- **`main.rs` panic on directory read**: `.expect()` calls replaced with proper error handling\n\n## Test plan\n\n- [x] All 134 existing tests pass\n- [x] Clippy clean (no new warnings)\n- [x] Full workspace build succeeds\n- [x] Manual: run `wrkflw validate` on a directory with restricted permissions\n- [x] Manual: run a workflow in emulation mode with a failing step \u2014 verify stdout/stderr preserved\n- [x] Manual: navigate job list in TUI with stale workflow state",
+      "labels": [],
+      "merged_at": "2026-04-01T14:02:53Z"
+    }
+  ]
+}
