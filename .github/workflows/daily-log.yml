@@ -2,8 +2,8 @@ name: Daily Log
 
 on:
   schedule:
-    # 7:30 PM UTC = 1:00 AM IST next day
-    - cron: '30 19 * * *'
+    # Runs daily at 7:45 PM UTC (1:15 AM IST next day)
+    - cron: '45 19 * * *'
   workflow_dispatch:
     inputs:
       date:
