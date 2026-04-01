@@ -27,15 +27,41 @@
         <p>auto-generated daily from public GitHub activity &middot; <a href="https://github.com/bahdotsh/logs">source</a></p>
     </footer>
     <script>
-    const params = new URLSearchParams(window.location.search);
-    const repo = params.get('repo');
-    if (repo) {
-        document.querySelectorAll('.repo-section').forEach(section => {
-            if (section.dataset.repo !== repo) {
-                section.style.display = 'none';
+    (function() {
+        // Repo filter from query param
+        var params = new URLSearchParams(window.location.search);
+        var repo = params.get('repo');
+        if (repo) {
+            var visiblePRs = 0;
+            document.querySelectorAll('.repo-section').forEach(function(section) {
+                if (section.dataset.repo !== repo) {
+                    section.style.display = 'none';
+                } else {
+                    visiblePRs += section.querySelectorAll('.pr-item').length;
+                }
+            });
+            var summary = document.querySelector('.entry-summary');
+            if (summary) {
+                summary.innerHTML = visiblePRs + ' pull request' + (visiblePRs !== 1 ? 's' : '') +
+                    ' in <strong>' + repo + '</strong>' +
+                    ' <a href="' + window.location.pathname + '" style="font-size:0.75rem;margin-left:0.3rem;">(show all)</a>';
+            }
+        }
+
+        // Read-more toggle for long PR bodies
+        document.querySelectorAll('.pr-body').forEach(function(body) {
+            if (body.scrollHeight > body.clientHeight + 1) {
+                var btn = document.createElement('button');
+                btn.className = 'read-more-btn';
+                btn.textContent = 'read more...';
+                btn.addEventListener('click', function() {
+                    body.classList.toggle('expanded');
+                    btn.textContent = body.classList.contains('expanded') ? 'show less' : 'read more...';
+                });
+                body.parentNode.insertBefore(btn, body.nextSibling);
             }
         });
-    }
+    })();
     </script>
 </body>
 </html>

@@ -11,6 +11,7 @@ Usage:
 import argparse
 import json
 import os
+import re
 import shutil
 import sys
 import urllib.request
@@ -80,9 +81,6 @@ def fetch_prs(date_str: str) -> dict | None:
         html_repo_url = f"https://github.com/{repo}" if repo else ""
 
         body = item.get("body") or ""
-        # Truncate body to first 200 chars
-        if len(body) > 200:
-            body = body[:200].rsplit(" ", 1)[0] + "..."
 
         labels = [l["name"] for l in item.get("labels", [])]
 
@@ -210,7 +208,9 @@ def build_entry(entry: dict, template: str, prev_date: str | None, next_date: st
 
             body_html = ""
             if pr["body"]:
-                body_html = f'<p class="pr-body">{escape_html(pr["body"])}</p>'
+                rendered = markdown_to_html(pr["body"])
+                if rendered:
+                    body_html = f'<div class="pr-body">{rendered}</div>'
 
             pr_items.append(
                 f"""<div class="pr-item">
@@ -254,6 +254,61 @@ def escape_html(text: str) -> str:
         .replace(">", "&gt;")
         .replace('"', "&quot;")
     )
+
+
+def _inline_md(text: str) -> str:
+    """Convert inline markdown to HTML. Input must already be HTML-escaped."""
+    text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
+    text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
+    return text
+
+
+def markdown_to_html(text: str) -> str:
+    """Convert simple PR-body markdown to HTML."""
+    if not text:
+        return ""
+
+    # Strip "## Summary" header
+    text = re.sub(r"^##\s+Summary\s*\n*", "", text, flags=re.IGNORECASE)
+
+    # Strip standalone "Fixes/Closes #N" lines at the start
+    text = re.sub(
+        r"^(Fixes|Closes|Resolves)\s+#\d+\.?\s*\n*", "", text, flags=re.IGNORECASE
+    )
+
+    text = text.strip()
+    if not text:
+        return ""
+
+    lines = text.split("\n")
+    html_parts: list[str] = []
+    in_list = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        if not stripped:
+            if in_list:
+                html_parts.append("</ul>")
+                in_list = False
+            continue
+
+        match = re.match(r"^[-*]\s+(.*)", stripped)
+        if match:
+            if not in_list:
+                html_parts.append("<ul>")
+                in_list = True
+            html_parts.append(f"<li>{_inline_md(escape_html(match.group(1)))}</li>")
+        else:
+            if in_list:
+                html_parts.append("</ul>")
+                in_list = False
+            html_parts.append(f"<p>{_inline_md(escape_html(stripped))}</p>")
+
+    if in_list:
+        html_parts.append("</ul>")
+
+    return "\n".join(html_parts)
 
 
 def build_site():

@@ -81,6 +81,12 @@
         function showDropdown() { dropdown.style.display = 'block'; isOpen = true; }
         function hideDropdown() { dropdown.style.display = 'none'; isOpen = false; }
 
+        function dimTags(repo) {
+            document.querySelectorAll('.day-repos .repo-tag').forEach(function(tag) {
+                tag.style.opacity = (repo && repo !== 'all' && tag.dataset.repo !== repo) ? '0.3' : '';
+            });
+        }
+
         function selectRepo(repo) {
             activeRepo = repo;
             hideDropdown();
@@ -94,6 +100,7 @@
                 countEl.style.display = 'none';
             }
             filterEntries(repo);
+            dimTags(repo);
             input.blur();
         }
 
@@ -116,14 +123,22 @@
                 clearBtn.style.display = 'none';
                 countEl.style.display = '';
                 document.querySelectorAll('.day-entry').forEach(function(e) { e.style.display = ''; });
+                dimTags('all');
             } else {
                 clearBtn.style.display = '';
                 countEl.style.display = 'none';
+                var matches = REPO_DATA.filter(function(r) {
+                    return r.name.toLowerCase().includes(q);
+                });
+                activeRepo = matches.length === 1 ? matches[0].name : 'all';
                 document.querySelectorAll('.day-entry').forEach(function(entry) {
                     var repos = entry.dataset.repos.split(' ');
                     entry.style.display = repos.some(function(r) {
                         return r.toLowerCase().includes(q);
                     }) ? '' : 'none';
+                });
+                document.querySelectorAll('.day-repos .repo-tag').forEach(function(tag) {
+                    tag.style.opacity = tag.dataset.repo.toLowerCase().includes(q) ? '' : '0.3';
                 });
             }
         });
@@ -146,11 +161,23 @@
             if (!filterWrap.contains(e.target)) hideDropdown();
         });
 
-        // Repo tags on entries trigger the filter
+        // Repo tags navigate to the entry page filtered by that repo
         document.querySelectorAll('.day-repos .repo-tag').forEach(function(tag) {
             tag.addEventListener('click', function(e) {
                 e.preventDefault();
-                selectRepo(tag.dataset.repo);
+                var entry = tag.closest('.day-entry');
+                var link = entry.querySelector('.day-link');
+                window.location.href = link.href + '?repo=' + encodeURIComponent(tag.dataset.repo);
+            });
+        });
+
+        // Pass repo filter when navigating to entry pages
+        document.querySelectorAll('.day-link').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                if (activeRepo !== 'all') {
+                    e.preventDefault();
+                    window.location.href = link.href + '?repo=' + encodeURIComponent(activeRepo);
+                }
             });
         });
     })();
