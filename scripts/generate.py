@@ -260,11 +260,13 @@ def _inline_md(text: str) -> str:
     """Convert inline markdown to HTML. Input must already be HTML-escaped."""
     text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
+    # Links: [text](url)
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
     return text
 
 
 def markdown_to_html(text: str) -> str:
-    """Convert simple PR-body markdown to HTML."""
+    """Convert PR-body markdown to HTML."""
     if not text:
         return ""
 
@@ -283,30 +285,139 @@ def markdown_to_html(text: str) -> str:
     lines = text.split("\n")
     html_parts: list[str] = []
     in_list = False
+    in_code_block = False
+    code_block_lines: list[str] = []
+    in_table = False
+    table_rows: list[str] = []
 
-    for line in lines:
+    def _close_list():
+        nonlocal in_list
+        if in_list:
+            html_parts.append("</ul>")
+            in_list = False
+
+    def _flush_table():
+        nonlocal in_table
+        if not in_table:
+            return
+        in_table = False
+        if not table_rows:
+            return
+        tbl = ['<table>']
+        for i, row_text in enumerate(table_rows):
+            cells = [c.strip() for c in row_text.strip("|").split("|")]
+            tag = "th" if i == 0 else "td"
+            tbl.append("<tr>" + "".join(f"<{tag}>{_inline_md(escape_html(c))}</{tag}>" for c in cells) + "</tr>")
+        tbl.append("</table>")
+        html_parts.append("\n".join(tbl))
+        table_rows.clear()
+
+    i = 0
+    while i < len(lines):
+        line = lines[i]
         stripped = line.strip()
 
-        if not stripped:
-            if in_list:
-                html_parts.append("</ul>")
-                in_list = False
+        # Fenced code blocks
+        if stripped.startswith("```"):
+            if not in_code_block:
+                _close_list()
+                _flush_table()
+                in_code_block = True
+                code_block_lines = []
+                i += 1
+                continue
+            else:
+                html_parts.append(
+                    "<pre><code>" + escape_html("\n".join(code_block_lines)) + "</code></pre>"
+                )
+                in_code_block = False
+                code_block_lines = []
+                i += 1
+                continue
+
+        if in_code_block:
+            code_block_lines.append(line)
+            i += 1
             continue
 
-        match = re.match(r"^[-*]\s+(.*)", stripped)
-        if match:
+        # Blank line
+        if not stripped:
+            _close_list()
+            _flush_table()
+            i += 1
+            continue
+
+        # Table rows (lines with |)
+        if "|" in stripped and re.match(r"^\|(.+\|)+\s*$", stripped):
+            # Skip separator rows like |---|---|
+            if re.match(r"^\|[\s\-:|]+\|$", stripped):
+                i += 1
+                continue
+            _close_list()
+            if not in_table:
+                in_table = True
+            table_rows.append(stripped)
+            i += 1
+            continue
+
+        _flush_table()
+
+        # Headers
+        header_match = re.match(r"^(#{1,6})\s+(.*)", stripped)
+        if header_match:
+            _close_list()
+            level = len(header_match.group(1))
+            html_parts.append(
+                f"<h{level}>{_inline_md(escape_html(header_match.group(2)))}</h{level}>"
+            )
+            i += 1
+            continue
+
+        # List items (unordered with - or *, including checkboxes)
+        list_match = re.match(r"^[-*]\s+(.*)", stripped)
+        if list_match:
             if not in_list:
                 html_parts.append("<ul>")
                 in_list = True
-            html_parts.append(f"<li>{_inline_md(escape_html(match.group(1)))}</li>")
-        else:
-            if in_list:
-                html_parts.append("</ul>")
-                in_list = False
-            html_parts.append(f"<p>{_inline_md(escape_html(stripped))}</p>")
+            item_text = list_match.group(1)
+            # Checkbox handling - prepend after escaping
+            checkbox_prefix = ""
+            if item_text.startswith("[x] ") or item_text.startswith("[X] "):
+                checkbox_prefix = '<input type="checkbox" checked disabled> '
+                item_text = item_text[4:]
+            elif item_text.startswith("[ ] "):
+                checkbox_prefix = '<input type="checkbox" disabled> '
+                item_text = item_text[4:]
+            html_parts.append(f"<li>{checkbox_prefix}{_inline_md(escape_html(item_text))}</li>")
+            i += 1
+            continue
 
-    if in_list:
-        html_parts.append("</ul>")
+        # Standalone checkbox lines (without list marker)
+        checkbox_match = re.match(r"^\[(x|X| )\]\s+(.*)", stripped)
+        if checkbox_match:
+            if not in_list:
+                html_parts.append("<ul>")
+                in_list = True
+            checked = checkbox_match.group(1).lower() == "x"
+            attr = " checked" if checked else ""
+            html_parts.append(
+                f'<li><input type="checkbox"{attr} disabled> {_inline_md(escape_html(checkbox_match.group(2)))}</li>'
+            )
+            i += 1
+            continue
+
+        # Regular paragraph
+        _close_list()
+        html_parts.append(f"<p>{_inline_md(escape_html(stripped))}</p>")
+        i += 1
+
+    # Close any open blocks
+    if in_code_block:
+        html_parts.append(
+            "<pre><code>" + escape_html("\n".join(code_block_lines)) + "</code></pre>"
+        )
+    _close_list()
+    _flush_table()
 
     return "\n".join(html_parts)
 

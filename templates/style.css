@@ -253,10 +253,12 @@ header h1 a {
 }
 
 .repo-section h3 {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
     color: #828282;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e8e8e0;
 }
 
 .repo-section h3 a {
@@ -271,12 +273,18 @@ header h1 a {
 /* PR items */
 
 .pr-item {
-    padding: 4px 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #e8e8e0;
+}
+
+.pr-item:last-child {
+    border-bottom: none;
 }
 
 .pr-title a {
     color: #333;
     font-size: 14px;
+    font-weight: bold;
 }
 
 .pr-title a:hover {
@@ -286,11 +294,10 @@ header h1 a {
 .pr-body {
     color: #828282;
     font-size: 13px;
-    margin-top: 2px;
-    line-height: 1.5;
-    max-height: 4.5em;
+    margin-top: 6px;
+    line-height: 1.6;
+    max-height: 4.8em; /* 3 lines × 1.6 line-height */
     overflow: hidden;
-    position: relative;
 }
 
 .pr-body.expanded {
@@ -327,6 +334,54 @@ header h1 a {
     color: #555;
 }
 
+.pr-body h2, .pr-body h3, .pr-body h4, .pr-body h5, .pr-body h6 {
+    color: #555;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 6px 0 3px;
+}
+
+.pr-body pre {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+    overflow-x: auto;
+    margin: 4px 0;
+}
+
+.pr-body pre code {
+    background: none;
+    padding: 0;
+    font-size: 12px;
+}
+
+.pr-body table {
+    border-collapse: collapse;
+    margin: 4px 0;
+    font-size: 12px;
+}
+
+.pr-body th, .pr-body td {
+    border: 1px solid #ddd;
+    padding: 3px 8px;
+    text-align: left;
+}
+
+.pr-body th {
+    background: #f5f5f5;
+    font-weight: bold;
+}
+
+.pr-body input[type="checkbox"] {
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.pr-body a {
+    color: #666;
+    text-decoration: underline;
+}
+
 .read-more-btn {
     color: #828282;
     font-size: 12px;
@@ -345,7 +400,7 @@ header h1 a {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 .pr-label {
