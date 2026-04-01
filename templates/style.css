@@ -39,6 +39,14 @@ header h1 {
 
 header h1 a {
     color: #333;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logo {
+    width: 20px;
+    height: 20px;
 }
 
 .subtitle {

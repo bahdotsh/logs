@@ -514,8 +514,11 @@ def build_site():
     SITE_DIR.mkdir()
     (SITE_DIR / "entries").mkdir()
 
-    # Copy CSS
+    # Copy CSS and logo
     shutil.copy(TEMPLATES_DIR / "style.css", SITE_DIR / "style.css")
+    logo_path = TEMPLATES_DIR / "logo.svg"
+    if logo_path.exists():
+        shutil.copy(logo_path, SITE_DIR / "logo.svg")
 
     # Copy CNAME if it exists
     cname_path = ROOT / "CNAME"
