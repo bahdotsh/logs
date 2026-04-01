@@ -1,0 +1,23 @@
+{
+  "date": "2026-03-16",
+  "prs": [
+    {
+      "title": "fix: navigate to heading for internal anchor links",
+      "url": "https://github.com/bahdotsh/mdterm/pull/16",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n- Internal anchor links (e.g. `[foo](#foo)`) now navigate to the matching heading instead of being blocked as unsupported URL schemes\n- Adds a `heading_to_slug()` function that converts heading text to GitHub-style anchor slugs for matching\n- Closes #14\n\n## Test plan\n- [ ] Open a markdown file containing internal anchor links (e.g. `[foo](#foo)` with a `# foo` heading)\n- [ ] Open the link picker (`l`), select the anchor link, and verify it scrolls to the heading\n- [ ] Verify external links (`http://`, `https://`, `mailto:`) still open normally\n- [ ] Verify headings with special characters and mixed case match correctly",
+      "labels": [],
+      "merged_at": "2026-03-16T09:01:05Z"
+    },
+    {
+      "title": "fix: harden against XSS, SSRF, panics, and overflow vulnerabilities",
+      "url": "https://github.com/bahdotsh/mdterm/pull/15",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "Address 8 issues from security audit: fix underflow in diagram parser, prevent Kitty ID overflow, bound stdin to 100MB, sanitize URLs in HTML export to block javascript:/vbscript: XSS, expand SSRF blocklist with .local/.localhost/.internal/::ffff: patterns, make encode_png fallible, add clipboard command timeout, and use unicode-width for correct CJK/ emoji column widths.",
+      "labels": [],
+      "merged_at": "2026-03-16T08:25:05Z"
+    }
+  ]
+}

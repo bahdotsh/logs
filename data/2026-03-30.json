@@ -1,0 +1,23 @@
+{
+  "date": "2026-03-30",
+  "prs": [
+    {
+      "title": "feat(image): add Kitty Unicode placeholder protocol for tmux",
+      "url": "https://github.com/bahdotsh/mdterm/pull/42",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\nFixes #41 \u2014 images fall back to half-blocks inside tmux+Ghostty because standard Kitty placement commands don't work through tmux.\n\n- Adds `ImageProtocol::KittyUnicode` variant that uses the [Kitty Unicode placeholder method](https://sw.kovidgoyal.net/kitty/graphics-protocol/#unicode-placeholders): image data is uploaded via DCS passthrough, and placement uses U+10EEEE placeholder characters with combining diacritics (row/col) and foreground color (image ID)\n- Auto-detects tmux via `TMUX` env var, then probes for Kitty-capable outer terminal (`TERM_PROGRAM`, `TERM`, `KITTY_WINDOW_ID`, `KONSOLE_VERSION`)\n- Can be forced with `MDTERM_IMAGE_PROTOCOL=kitty-unicode`\n- Keeps existing direct Kitty path unchanged (more efficient outside tmux)\n\n**Note:** Requires `set -g allow-passthrough on` in tmux config for DCS passthrough to work.\n\n## Test plan\n\n- [x] `cargo check` / `cargo clippy` \u2014 no warnings\n- [x] `cargo test` \u2014 all 127 tests pass\n- [x] Manual test in tmux+Ghostty: `MDTERM_IMAGE_PROTOCOL=kitty-unicode cargo run -- <file-with-images.md>`\n- [x] Manual test outside tmux: verify auto-detection still picks `Kitty` for Ghostty/Kitty\n- [x] Verify `MDTERM_IMAGE_PROTOCOL=kitty` still works as before (direct path unchanged)",
+      "labels": [],
+      "merged_at": "2026-03-30T18:12:54Z"
+    },
+    {
+      "title": "feat: add JSON file viewer with semantic rendering",
+      "url": "https://github.com/bahdotsh/mdterm/pull/40",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\n- Adds a new `json.rs` module that parses JSON files and renders them as structured tree views with Unicode box-drawing guides, color-coded types, and automatic table detection for arrays of homogeneous objects\n- All existing viewer features (search, TOC, link picker, keyboard nav, auto-reload, multi-file switching, HTML export) work automatically for JSON files \u2014 no viewer logic changes needed beyond a render dispatch\n- Adds 7 new JSON-specific theme colors (`json_key`, `json_string`, `json_number`, `json_bool`, `json_null`, `json_bracket`, `json_path`) to both dark and light themes\n\n## Test plan\n\n- [x] `cargo run -- test.json` \u2014 verify tree view renders with colored types, headings, and table for `dependencies`/`authors`\n- [x] Press `o` \u2014 TOC shows top-level JSON keys as sections\n- [x] Press `/` and search \u2014 highlights matches in JSON content\n- [x] Press `f` \u2014 link picker finds URLs from JSON string values\n- [x] `cargo run -- test.json README.md` and Tab \u2014 multi-file switching between JSON and markdown\n- [x] `cargo run -- test.json --export html` \u2014 HTML export works\n- [x] `cat test.json | cargo run -- --no-color` \u2014 piped output works (renders as markdown fallback for stdin)\n- [x] `cargo test` \u2014 all 123 existing tests pass\n- [x] `cargo clippy` \u2014 clean",
+      "labels": [],
+      "merged_at": "2026-03-30T17:38:16Z"
+    }
+  ]
+}

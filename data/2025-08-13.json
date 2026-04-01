@@ -1,0 +1,50 @@
+{
+  "date": "2025-08-13",
+  "prs": [
+    {
+      "title": "feat(ui): enhance TUI help tab with comprehensive documentation and s\u2026",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/38",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "\u2026crolling\r\n\r\n- Add comprehensive keyboard shortcut documentation organized in sections\r\n- Implement two-column layout with color-coded sections and emoji icons\r\n- Add scrollable help content with \u2191/\u2193 and k/j key support\r\n- Enhance help overlay with larger modal size and scroll support\r\n- Include detailed explanations of all tabs, runtime modes, and features\r\n- Update status bar with context-aware help instructions\r\n- Add help scroll state management to app state\r\n- Document workflow management, search functionality, and best practices\r\n\r\nThe help tab now provides a complete guide covering:\r\n- Navigation controls and tab switching\r\n- Workflow selection, execution, and triggering\r\n- Runtime modes (Docker, Podman, Emulation, Secure Emulation)\r\n- Log search and filtering capabilities\r\n- Tab-specific functionality and tips\r\n- Quick actions and keyboard shortcuts",
+      "labels": [],
+      "merged_at": "2025-08-13T09:59:22Z"
+    },
+    {
+      "title": "feat: Add comprehensive sandboxing for secure emulation mode",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/37",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "Security Features:\r\n- Implement secure emulation runtime with command sandboxing\r\n- Add command validation, filtering, and dangerous pattern detection\r\n- Block harmful commands like 'rm -rf /', 'sudo', 'dd', etc.\r\n- Add resource limits (CPU, memory, execution time, process count)\r\n- Implement filesystem isolation and access controls\r\n- Add environment variable sanitization\r\n- Support shell operators (&&, ||, |, ;) with proper parsing\r\n\r\nNew Runtime Mode:\r\n- Add 'secure-emulation' runtime option to CLI\r\n- Update UI to support new runtime mode with green security indicator\r\n- Mark legacy 'emulation' mode as unsafe in help text\r\n- Default to secure mode for local development safety\r\n\r\nDocumentation:\r\n- Create comprehensive security documentation (README_SECURITY.md)\r\n- Update main README with security mode information\r\n- Add example workflows demonstrating safe vs dangerous commands\r\n- Include migration guide and best practices\r\n\r\nTesting:\r\n- Add comprehensive test suite for sandbox functionality\r\n- Include security demo workflows for testing\r\n- Test dangerous command blocking and safe command execution\r\n- Verify resource limits and timeout functionality\r\n\r\nCode Quality:\r\n- Fix all clippy warnings with proper struct initialization\r\n- Add proper error handling and user-friendly security messages\r\n- Implement comprehensive logging for security events\r\n- Follow Rust best practices throughout\r\n\r\nThis addresses security concerns by preventing accidental harmful commands while maintaining full compatibility with legitimate CI/CD workflows. Users can now safely run untrusted workflows locally without risk to their host system.",
+      "labels": [],
+      "merged_at": "2025-08-13T09:06:02Z"
+    },
+    {
+      "title": "feat(cli): wrkflw validate accepts multiple paths (files/dirs)",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/36",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-08-13T08:41:09Z"
+    },
+    {
+      "title": "feat: move log stream composition and filtering to background thread",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/35",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "- Resolves #29: UI unresponsiveness in logs tab\r\n- Add LogProcessor with background thread for async log processing\r\n- Implement pre-processed log caching with ProcessedLogEntry\r\n- Replace frame-by-frame log processing with cached results\r\n- Add automatic log change detection for app and system logs\r\n- Optimize rendering from O(n) to O(1) complexity\r\n- Maintain all search, filter, and highlighting functionality\r\n- Fix clippy warning for redundant pattern matching\r\n\r\nPerformance improvements:\r\n- Log processing moved to separate thread with 50ms debouncing\r\n- UI rendering no longer blocks on log filtering/formatting\r\n- Supports thousands of logs without UI lag\r\n- Non-blocking request/response pattern with mpsc channels",
+      "labels": [],
+      "merged_at": "2025-08-13T08:11:18Z"
+    },
+    {
+      "title": "fix: Support array format for runs-on field in GitHub Actions workflows",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/34",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "- Add custom deserializer for runs-on field to handle both string and array formats\r\n- Update Job struct to use Vec<String> instead of String for runs-on field\r\n- Modify executor to extract first element from runs-on array for runner selection\r\n- Add test workflow to verify both string and array formats work correctly\r\n- Maintain backwards compatibility with existing string-based workflows\r\n\r\nFixes issue where workflows with runs-on: [self-hosted, ubuntu, small] format\r\nwould fail with 'invalid type: sequence, expected a string' error.\r\n\r\nThis change aligns with GitHub Actions specification which supports:\r\n- String format: runs-on: ubuntu-latest\r\n- Array format: runs-on: [self-hosted, ubuntu, small]",
+      "labels": [],
+      "merged_at": "2025-08-13T07:54:36Z"
+    }
+  ]
+}

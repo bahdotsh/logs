@@ -1,0 +1,14 @@
+{
+  "date": "2025-04-21",
+  "prs": [
+    {
+      "title": "feat: add workflow_dispatch trigger command",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/13",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "\r\n- Add trigger subcommand with branch and input parameters \r\n- Add list subcommand to show available workflows\r\n- Create GitHub API client for workflow dispatch events \r\n- Implement repo detection from git remote\r\n- Add User-Agent header for GitHub API requests",
+      "labels": [],
+      "merged_at": "2025-04-21T06:47:45Z"
+    }
+  ]
+}

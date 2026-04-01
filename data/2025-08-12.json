@@ -1,0 +1,23 @@
+{
+  "date": "2025-08-12",
+  "prs": [
+    {
+      "title": "docs(readme): add per-crate READMEs and enhance wrkflw crate README",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/33",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-08-12T09:42:44Z"
+    },
+    {
+      "title": "feat: add execution support for reusable workflows",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/32",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": " (jobs.<id>.uses)\\n\\n- Parser: make jobs.runs-on optional; add job-level uses/with/secrets for caller jobs\\n- Executor: resolve and run local/remote called workflows; propagate inputs/secrets; summarize results\\n- Docs: document feature, usage, and current limits in README\\n- Tests: add execution tests for local reusable workflows (success/failure)\\n\\nLimits:\\n- Does not propagate outputs back to caller\\n- secrets: inherit not special-cased; use mapping\\n- Remote private repos not yet supported; public only\\n- Cycle detection for nested calls unchanged",
+      "labels": [],
+      "merged_at": "2025-08-12T09:27:50Z"
+    }
+  ]
+}

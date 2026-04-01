@@ -1,0 +1,23 @@
+{
+  "date": "2025-09-05",
+  "prs": [
+    {
+      "title": "fix: resolve tempdir lifecycle issue in remote workflow execution",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/63",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "- Fix remote workflow execution failing with 'No such file or directory'\r\n- Move workflow parsing and execution inside tempdir scope to prevent premature cleanup of temporary directory\r\n- Ensure TempDir stays alive during entire remote workflow lifecycle\r\n- Remote workflows like pytorch/test-infra/.github/workflows/*.yml@main now execute successfully\r\n\r\nResolves #47",
+      "labels": [],
+      "merged_at": "2025-09-05T05:09:09Z"
+    },
+    {
+      "title": "fix(docker): mount GitHub environment files directory into containers",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/61",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "- Mount GitHub environment files directory containing GITHUB_ENV, GITHUB_OUTPUT, GITHUB_PATH, and GITHUB_STEP_SUMMARY\r\n- Resolves Docker container exit code -1 when writing to $GITHUB_ENV\r\n- Update volume mapping in both step execution contexts in engine.rs\r\n- Tested on macOS with Docker Desktop\r\n\r\nCloses: Issue #57 ",
+      "labels": [],
+      "merged_at": "2025-09-05T02:58:10Z"
+    }
+  ]
+}

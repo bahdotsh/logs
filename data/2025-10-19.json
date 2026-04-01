@@ -1,0 +1,14 @@
+{
+  "date": "2025-10-19",
+  "prs": [
+    {
+      "title": "Add feedr - terminal-based RSS/Atom feed reader with TUI",
+      "url": "https://github.com/ratatui/awesome-ratatui/pull/192",
+      "repo": "ratatui/awesome-ratatui",
+      "repo_url": "https://github.com/ratatui/awesome-ratatui",
+      "body": "* Link to your project (GitHub/crates.io): https://github.com/bahdotsh/feedr\r\n\r\n* Description (optional):  A terminal-based RSS/Atom feed reader with a TUI.\r\n\r\n* Screenshot or gif (strongly recommended): [demo](https://github.com/bahdotsh/feedr/blob/main/demo.gif)\r\n",
+      "labels": [],
+      "merged_at": "2025-10-19T15:46:12Z"
+    }
+  ]
+}

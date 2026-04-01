@@ -1,0 +1,14 @@
+{
+  "date": "2026-03-19",
+  "prs": [
+    {
+      "title": "Announcing giff v1.1.0 and mdterm v1.50",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/7797",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-19T00:20:24Z"
+    }
+  ]
+}

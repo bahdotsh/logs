@@ -1,0 +1,14 @@
+{
+  "date": "2025-10-14",
+  "prs": [
+    {
+      "title": "feat(blocks): add local state persistence with useBlockLocalState hook",
+      "url": "https://github.com/atuinsh/desktop/pull/141",
+      "repo": "atuinsh/desktop",
+      "repo_url": "https://github.com/atuinsh/desktop",
+      "body": "Closes #102 ",
+      "labels": [],
+      "merged_at": "2025-10-14T07:13:06Z"
+    }
+  ]
+}

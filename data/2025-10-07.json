@@ -1,0 +1,14 @@
+{
+  "date": "2025-10-07",
+  "prs": [
+    {
+      "title": "feat(runbooks): Add collapsible code blocks",
+      "url": "https://github.com/atuinsh/desktop/pull/85",
+      "repo": "atuinsh/desktop",
+      "repo_url": "https://github.com/atuinsh/desktop",
+      "body": "Add collapse/expand functionality to improve navigation with long scripts:\r\n- Add collapse buttons to Script, Terminal, and Editor blocks\r\n\r\nfixes: #72",
+      "labels": [],
+      "merged_at": "2025-10-06T20:08:08Z"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "date": "2026-03-05",
+  "prs": [
+    {
+      "title": "Feedr 0.4.0 announcement",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/7725",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-05T01:54:38Z"
+    },
+    {
+      "title": "feat: add starred/saved articles with dedicated view and filtering",
+      "url": "https://github.com/bahdotsh/feedr/pull/29",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "Allow users to star articles with 's' from Dashboard, FeedItems, and FeedItemDetail views. Starred status persists across sessions in feedr_data.json. Adds a dedicated Starred view accessible via Tab cycling, star indicators in item lists, and a starred filter option in the filter modal.",
+      "labels": [],
+      "merged_at": "2026-03-04T19:12:28Z"
+    },
+    {
+      "title": "feat: live search, summary and preview",
+      "url": "https://github.com/bahdotsh/feedr/pull/28",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-04T18:56:13Z"
+    }
+  ]
+}

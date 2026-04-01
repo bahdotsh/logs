@@ -1,0 +1,50 @@
+{
+  "date": "2026-03-25",
+  "prs": [
+    {
+      "title": "feat: dependency graph export (file-level + symbol-level)",
+      "url": "https://github.com/bahdotsh/indxr/pull/5",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- New `src/dep_graph.rs` module with heuristic import resolution across languages (Rust `crate::`, JS/TS relative `./`/`../`, Python dot-paths, generic segment matching)\n- **File-level graph**: resolves imports to indexed files, builds file-to-file dependency edges with deduplication and path scoping\n- **Symbol-level graph**: edges from `extends`/`implements` relationships + word-boundary signature matching for type references\n- **Output formats**: DOT (Graphviz), Mermaid (renders in GitHub markdown), and JSON\n- **MCP tool** `get_dependency_graph` with params: `path` (scope), `level` (file/symbol), `format` (dot/mermaid/json), `depth` (hop limit)\n- **CLI flag** `--graph [dot|mermaid]` combinable with `--filter-path` for scoped output\n- 24 new tests (18 unit + 6 MCP integration), 0 clippy warnings\n\n### Usage\n\n```bash\n# CLI\nindxr --graph mermaid                          # full codebase mermaid graph\nindxr --graph dot --filter-path src/mcp        # scoped DOT graph\nindxr --graph mermaid -o deps.md               # write to file\n\n# MCP tool\nget_dependency_graph { \"format\": \"mermaid\" }\nget_dependency_graph { \"path\": \"src/mcp\", \"level\": \"symbol\", \"format\": \"dot\" }\nget_dependency_graph { \"format\": \"json\", \"depth\": 2 }\n```\n\n## Test plan\n\n- [x] `cargo test` \u2014 146 tests pass (24 new)\n- [x] `cargo clippy` \u2014 0 warnings\n- [x] Self-tested on the indxr codebase with `--graph mermaid` and `--graph dot --filter-path src/mcp` \u2014 produces accurate dependency graphs\n- [ ] Verify MCP tool via `indxr serve` and calling `get_dependency_graph` with various params",
+      "labels": [],
+      "merged_at": "2026-03-25T17:42:34Z"
+    },
+    {
+      "title": "feat(watch): add `indxr watch` for live file-watching",
+      "url": "https://github.com/bahdotsh/indxr/pull/4",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- Add `indxr watch` standalone command that monitors source files and auto-regenerates INDEX.md on changes\n- Add `--watch` flag to `indxr serve` for MCP server auto-reindexing without agents calling `regenerate_index`\n- Refactor MCP server loop from blocking stdin to channel-based event loop (`ServerEvent` enum) to support concurrent stdin + watcher events\n- Uses `notify` + `notify-debouncer-mini` (300ms default debounce) \u2014 no async runtime, stays fully synchronous with threads/channels\n- Lightweight pre-filter skips INDEX.md, cache dir, hidden files, and non-source files to avoid spurious rebuilds\n- 6 new unit tests for the trigger filter logic\n\n### Usage\n\n```bash\n# Standalone watch mode\nindxr watch ./project              # watches and updates INDEX.md\nindxr watch ./project -o out.md    # custom output path\nindxr watch --debounce-ms 500      # custom debounce\n\n# MCP server with auto-reindex\nindxr serve --watch ./project      # MCP + file watching\n```\n\n## Test plan\n\n- [x] `cargo build` \u2014 compiles cleanly\n- [x] `cargo test` \u2014 all 115 tests pass (including 6 new watch tests)\n- [x] `cargo clippy` \u2014 no warnings\n- [x] `cargo fmt` \u2014 clean\n- [ ] Manual: `indxr watch .` \u2192 edit a `.rs` file \u2192 verify INDEX.md updates with \"Change detected\" on stderr\n- [ ] Manual: `indxr serve --watch .` \u2192 verify MCP tools work normally + auto-reindex on file changes",
+      "labels": [],
+      "merged_at": "2026-03-25T15:33:34Z"
+    },
+    {
+      "title": "feat: add `indxr init` command for one-step agent setup",
+      "url": "https://github.com/bahdotsh/indxr/pull/3",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- Adds `indxr init` subcommand that scaffolds all configuration files for AI agent integration in a single command\n- Supports Claude Code (`--claude`), Cursor (`--cursor`), Windsurf (`--windsurf`), or all at once (default)\n- Generates MCP configs, agent instruction files (CLAUDE.md, .cursorrules, .windsurfrules), PreToolUse hooks, INDEX.md, and .gitignore entry\n- Safe by default: skips existing files with a warning, `--force` to overwrite\n- Includes 17 unit tests covering templates, file conflict handling, and gitignore logic\n- Updates all documentation: README, CLAUDE.md, CLI reference, agent integration guide, MCP server docs\n\n### Files created per agent\n\n| Flag | Files |\n|------|-------|\n| `--claude` | `.mcp.json`, `CLAUDE.md`, `.claude/settings.json` |\n| `--cursor` | `.cursor/mcp.json`, `.cursorrules` |\n| `--windsurf` | `.windsurf/mcp.json`, `.windsurfrules` |\n| Always | `.gitignore` (append), `INDEX.md` (unless `--no-index`) |\n\n### Usage\n\n```bash\nindxr init                          # all agents\nindxr init --claude                 # Claude Code only\nindxr init --cursor --windsurf      # Cursor + Windsurf\nindxr init --no-index --no-hooks    # skip INDEX.md and hooks\nindxr init --force                  # overwrite existing files\n```\n\n## Test plan\n\n- [x] `cargo build` compiles without errors\n- [x] `cargo test` \u2014 all 109 tests pass (17 new init tests)\n- [x] Manual smoke test: `indxr init --claude --no-index` in temp directory creates expected files\n- [x] Re-running `indxr init` skips existing files with correct warnings\n- [ ] Verify `indxr init` with INDEX.md generation on a real project\n- [ ] Verify generated `.mcp.json` works with `indxr serve`",
+      "labels": [],
+      "merged_at": "2026-03-25T12:50:26Z"
+    },
+    {
+      "title": "refactor(mcp): split monolithic mcp.rs into module tree",
+      "url": "https://github.com/bahdotsh/indxr/pull/2",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- Split the 2,387-line `src/mcp.rs` into a `src/mcp/` module tree with 4 focused files:\n  - **`mod.rs`** (192 lines) \u2014 JSON-RPC types, protocol handlers, server loop\n  - **`helpers.rs`** (831 lines) \u2014 extracted utility functions (`compile_glob_matcher`, `split_identifier`, `bigram_similarity`, `collapse_nested_bodies`, `contains_word_boundary`, `is_compact`, `serialize_compact`, `to_compact_rows`, etc.), types (`SymbolMatch`, `SignatureMatch`, `ShallowDeclaration`, `RelevanceMatch`), and constants\n  - **`tools.rs`** (1,467 lines) \u2014 tool definitions, dispatcher, and all 18 tool implementations\n  - **`tests.rs`** (1,196 lines) \u2014 all unit and integration tests\n- No functional changes \u2014 pure structural refactor\n- Addresses review feedback from PR #1 about file size and helper extraction\n\n## Test plan\n\n- [x] `cargo build` compiles with zero warnings\n- [x] All 93 tests pass (`cargo test`)\n- [x] Public API unchanged (`mcp::run_mcp_server` is the only export)",
+      "labels": [],
+      "merged_at": "2026-03-25T11:53:46Z"
+    },
+    {
+      "title": "feat(mcp): add 6 new tools and 7 enhancements to reduce agent token usage",
+      "url": "https://github.com/bahdotsh/indxr/pull/1",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\nAdds 13 token-saving features to the MCP server, growing it from 12 to 18 tools. All changes are additive and backward-compatible.\n\n### 6 New Tools\n- **`get_diff_summary`** \u2014 Structural diff against a git ref (branch/tag/commit). Shows added/removed/modified declarations instead of raw diffs. Reuses existing `diff.rs` engine.\n- **`batch_file_summaries`** \u2014 Summarize multiple files in one call via `paths` array or `glob` pattern (cap: 30 files). Eliminates 5-10 sequential `get_file_summary` round-trips.\n- **`get_callers`** \u2014 Find who references a symbol by searching imports and signatures across all files. Approximate but far cheaper than agents grepping manually.\n- **`get_public_api`** \u2014 Public API surface of a file or directory. Only public declarations with signatures \u2014 no bodies, no privates, no counts.\n- **`explain_symbol`** \u2014 Full interface metadata (signature, doc comment, relationships, async/test/deprecated flags) without reading body source.\n- **`get_related_tests`** \u2014 Find test functions for a symbol by naming convention (`test_*`, `*_test`, etc.) and file association.\n\n### 7 Enhancements to Existing Tools\n- **`read_source`** \u2014 New `symbols: [...]` array for multi-symbol reads (500 line cap) and `collapse: true` to fold nested block bodies to `{ ... }`\n- **`search_relevant`** \u2014 New `kind: \"fn\"` filter and improved scoring with camelCase/snake_case-aware identifier splitting + bigram fuzzy fallback\n- **`get_token_estimate`** \u2014 New `directory`/`glob` params for bulk token estimation across file sets\n- **`regenerate_index`** \u2014 Now delta-aware: returns `changes` field showing files added/removed/modified\n- **`lookup_symbol`, `list_declarations`, `search_signatures`, `search_relevant`** \u2014 New `compact: true` param for columnar `{columns, rows}` output (~30% token savings)\n\n### Shared Helpers Added\n`simple_glob_match`, `split_identifier`, `bigram_similarity`, `collapse_nested_bodies`, `to_compact_rows`, `collect_public_decls`, `find_tests_for_symbol`, `explain_decl`\n\n## Test plan\n- [x] `cargo build` \u2014 compiles cleanly\n- [x] `cargo test` \u2014 all 37 tests pass (28 existing + 9 new/updated)\n- [x] New tests: `test_score_match_camel_case_aware`, `test_split_identifier`, `test_simple_glob_match`\n- [x] Updated tests: score_match expectations adjusted for identifier-part scoring, tool count updated to 18\n- [x] INDEX.md regenerated\n- [x] CLAUDE.md updated with new tools in exploration workflow and token savings table",
+      "labels": [],
+      "merged_at": "2026-03-25T11:30:11Z"
+    }
+  ]
+}

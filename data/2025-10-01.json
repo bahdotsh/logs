@@ -1,0 +1,16 @@
+{
+  "date": "2025-10-01",
+  "prs": [
+    {
+      "title": "Add blogr v0.3.0 and feedr v0.2.0 announcements",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/7080",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [
+        "Community Links"
+      ],
+      "merged_at": "2025-10-01T05:03:12Z"
+    }
+  ]
+}

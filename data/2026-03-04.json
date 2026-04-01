@@ -1,0 +1,50 @@
+{
+  "date": "2026-03-04",
+  "prs": [
+    {
+      "title": "perf: optimize hot paths for filtering, rendering, and searching",
+      "url": "https://github.com/bahdotsh/feedr/pull/27",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "- Use HashSet for read_items (O(1) lookups instead of O(n) linear scan)\r\n- Cache parsed dates, plain text, and lowercased titles on FeedItem/Feed structs during parsing to avoid repeated work per filter/render/search\r\n- Cache ColorScheme in App state instead of reconstructing every frame\r\n- Use static str slices for ASCII art instead of allocating Vec<String>\r\n- Use clone_from for filtered_dashboard_items to reuse allocation\r\n- Use pre-lowercased fields in search_feeds to avoid per-item allocations",
+      "labels": [],
+      "merged_at": "2026-03-04T18:07:51Z"
+    },
+    {
+      "title": "fix: defer feed loading for instant TUI startup",
+      "url": "https://github.com/bahdotsh/feedr/pull/26",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "Move feed loading out of `App::new()` and into background threads spawned after the TUI starts rendering. Uses `std::sync::mpsc` to send results back to the main loop, which drains them each tick and inserts feeds in bookmark order. The existing `is_loading`/`loading` indicator now shows during initial load. Also parallelizes `load_bookmarked_feeds()` and `refresh_feeds()` with per-domain rate limiting.",
+      "labels": [],
+      "merged_at": "2026-03-04T17:46:16Z"
+    },
+    {
+      "title": "fix: correct input modal cursor for SearchMode and non-ASCII input",
+      "url": "https://github.com/bahdotsh/feedr/pull/25",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "- Show terminal cursor for both InsertUrl and SearchMode (was only InsertUrl, leaving SearchMode with no cursor at all)\r\n- Use chars().count() instead of len() for cursor positioning to handle multi-byte UTF-8 characters correctly\r\n- Clamp cursor x to input rect bounds to prevent overflow on long input\r\n- Document magic offset numbers for input rect positioning",
+      "labels": [],
+      "merged_at": "2026-03-04T17:28:52Z"
+    },
+    {
+      "title": "fix: consume keypress on error dismiss",
+      "url": "https://github.com/bahdotsh/feedr/pull/24",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-04T17:16:23Z"
+    },
+    {
+      "title": "fix: use user-created categories for filtering instead of hardcoded values",
+      "url": "https://github.com/bahdotsh/feedr/pull/23",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "Replace domain-pattern-matching heuristics with lookups against user-created FeedCategory entries in category filtering, available categories, and the FilterMode category cycling handler.",
+      "labels": [],
+      "merged_at": "2026-03-04T17:00:27Z"
+    }
+  ]
+}

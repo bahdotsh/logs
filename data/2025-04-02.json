@@ -1,0 +1,14 @@
+{
+  "date": "2025-04-02",
+  "prs": [
+    {
+      "title": "fix: allow -ve values for timezone",
+      "url": "https://github.com/atuinsh/atuin/pull/2609",
+      "repo": "atuinsh/atuin",
+      "repo_url": "https://github.com/atuinsh/atuin",
+      "body": "\r\n## Checks\r\n- [x] I am happy for maintainers to push small adjustments to this PR, to speed up the review cycle\r\n- [x] I have checked that there are no existing pull requests for the same thing\r\n",
+      "labels": [],
+      "merged_at": "2025-04-02T11:37:36Z"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "date": "2025-10-02",
+  "prs": [
+    {
+      "title": "feat(templates): Add shellquote filter for safe shell escaping.",
+      "url": "https://github.com/atuinsh/desktop/pull/65",
+      "repo": "atuinsh/desktop",
+      "repo_url": "https://github.com/atuinsh/desktop",
+      "body": "Resolves: #46",
+      "labels": [],
+      "merged_at": "2025-10-02T15:07:08Z"
+    }
+  ]
+}

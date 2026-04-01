@@ -1,0 +1,14 @@
+{
+  "date": "2026-03-10",
+  "prs": [
+    {
+      "title": "fix: load default feeds",
+      "url": "https://github.com/bahdotsh/feedr/pull/30",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-09T20:19:08Z"
+    }
+  ]
+}

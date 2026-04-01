@@ -1,0 +1,32 @@
+{
+  "date": "2026-03-28",
+  "prs": [
+    {
+      "title": "feat(init): add --global flag and migrate to modern rules format",
+      "url": "https://github.com/bahdotsh/indxr/pull/14",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\nCloses #9.\n\n- **`--global` flag**: `indxr init --global` installs MCP config and rules into user-level directories so indxr is available for all projects without per-project setup\n  - Claude Code: `~/.claude.json` (MCP merge) + `~/.claude/CLAUDE.md` (append)\n  - Cursor: `~/.cursor/mcp.json` (MCP merge)\n  - Windsurf: `~/.codeium/windsurf/mcp_config.json` (MCP merge) + `~/.codeium/windsurf/memories/global_rules.md` (append)\n- **Modern rules format**: Migrates deprecated `.cursorrules` \u2192 `.cursor/rules/indxr.mdc` and `.windsurfrules` \u2192 `.windsurf/rules/indxr.md` with proper frontmatter\n- **Safe MCP merge**: Reads existing JSON, adds/updates only the `indxr` server entry, preserves all other servers and fields\n- 36 init tests (16 new), all 308 tests passing, clippy clean\n\n## Test plan\n\n- [x] `cargo test init::tests` \u2014 all 36 tests pass\n- [x] `indxr init --cursor` creates `.cursor/rules/indxr.mdc` (not `.cursorrules`)\n- [x] `indxr init --windsurf` creates `.windsurf/rules/indxr.md` (not `.windsurfrules`)\n- [x] `indxr init --global --cursor` merges into `~/.cursor/mcp.json`\n- [x] `indxr init --global` with existing MCP config preserves other servers\n- [x] `indxr init --help` shows `--global` flag",
+      "labels": [],
+      "merged_at": "2026-03-28T04:40:09Z"
+    },
+    {
+      "title": "feat: add multi-root monorepo workspace support",
+      "url": "https://github.com/bahdotsh/indxr/pull/13",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- **Workspace detection** for Cargo (`[workspace].members`), npm (`\"workspaces\"`), and Go (`go.work`) with automatic glob expansion and member name resolution\n- **New `WorkspaceIndex` data model** wrapping per-member `CodebaseIndex` instances \u2014 non-workspace projects flow through the same path as a single-member workspace (zero branching)\n- **All 22 MCP tools** updated to accept an optional `member` param for scoping; cross-member tools search transparently, path-specific tools auto-resolve the member\n- **New `list_workspace_members` tool** (23 total) and CLI additions: `indxr members`, `--member`, `--no-workspace`\n- Workspace-aware `serve`, `watch`, HTTP transport, INDEX.md generation, and auto-reindex\n\n## Test plan\n\n- [x] `cargo fmt` \u2014 clean\n- [x] `cargo clippy --all-features` \u2014 clean\n- [x] `cargo test` \u2014 278 tests pass (14 new workspace tests)\n- [x] `cargo test --all-features` \u2014 301 tests pass (includes HTTP transport tests)\n- [x] Manual: `indxr members` on a Cargo workspace, npm monorepo, and Go workspace\n- [x] Manual: `indxr serve` on a monorepo, verify `list_workspace_members` and `member`-scoped tool calls\n- [x] Manual: `indxr serve --no-workspace` on a monorepo, verify single-root behavior",
+      "labels": [],
+      "merged_at": "2026-03-28T03:32:07Z"
+    },
+    {
+      "title": "feat(mcp): add Streamable HTTP transport",
+      "url": "https://github.com/bahdotsh/indxr/pull/12",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- Implements MCP **Streamable HTTP** transport (spec 2025-03-26) alongside the existing stdio transport, enabling multi-client scenarios via `indxr serve --http :8080`\n- Feature-gated behind `--features http` (axum, tokio, etc.) to keep the default binary lean \u2014 no bloat for stdio-only users\n- Extracts a transport-agnostic `process_jsonrpc_message()` handler from the existing code, shared by both stdio and HTTP transports\n\n### HTTP Transport Details\n\n- Single `/mcp` endpoint: **POST** for JSON-RPC requests, **GET** for SSE notification stream, **DELETE** for session termination\n- Full session enforcement via `Mcp-Session-Id` header (assigned on `initialize`, required for all subsequent requests)\n- File watcher integration (`--watch`) broadcasts change notifications to all connected SSE clients\n- `RwLock`-based shared state for concurrent multi-client access\n- Sync-to-async bridge via `spawn_blocking` \u2014 all existing tool execution stays synchronous\n\n### Files Changed\n\n| File | Change |\n|------|--------|\n| `src/mcp/http.rs` | **New** \u2014 full HTTP transport + 8 in-crate tests |\n| `src/mcp/mod.rs` | Extract `process_jsonrpc_message()`, add `Transport` enum, widen visibility |\n| `src/mcp/tests.rs` | 6 new tests for the shared handler |\n| `Cargo.toml` | `http` feature flag + optional deps (axum, tokio, tokio-stream, tower-http, uuid, async-stream) |\n| `src/cli.rs` | `--http <ADDR>` flag on `serve` command |\n| `src/main.rs` | HTTP vs stdio dispatch logic |\n| `CLAUDE.md`, `docs/mcp-server.md`, `roadmap.md` | Documentation |\n\n## Test plan\n\n- [x] `cargo test` \u2014 264 tests pass (no regression, no http feature)\n- [x] `cargo test --features http` \u2014 272 tests pass (+14 new tests)\n- [x] `cargo check` and `cargo check --features http` both compile cleanly\n- [x] Manual: `cargo run --features http -- serve --http :8080 --watch` + curl requests",
+      "labels": [],
+      "merged_at": "2026-03-27T19:19:03Z"
+    }
+  ]
+}

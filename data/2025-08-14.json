@@ -1,0 +1,32 @@
+{
+  "date": "2025-08-14",
+  "prs": [
+    {
+      "title": "feat: implement secrets management with multi-provider support, masking, and security features",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/42",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-08-14T18:11:48Z"
+    },
+    {
+      "title": "fix:  PHP workflow execution issues",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/40",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "- Add automatic Docker image pulling in run_container_inner\r\n- Implement smart container image selection for GitHub actions\r\n- Fix shell command parsing to use bash -c for proper quote/pipe handling\r\n- Map shivammathur/setup-php to composer:latest container\r\n- Support complex commands with quotes, pipes, and substitutions\r\n-  Fixes #39 \r\n\r\nFixes issues where:\r\n1. Docker images required manual pulling\r\n2. PHP actions used the wrong Node.js containers\r\n3. Commands like 'echo \"dir=$(composer config cache-files-dir)\" >> $GITHUB_OUTPUT' failed",
+      "labels": [],
+      "merged_at": "2025-08-14T08:56:46Z"
+    },
+    {
+      "title": "Add wrkflw v0.7.0 announcement",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/6896",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-08-13T23:46:16Z"
+    }
+  ]
+}

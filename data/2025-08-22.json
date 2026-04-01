@@ -1,0 +1,14 @@
+{
+  "date": "2025-08-22",
+  "prs": [
+    {
+      "title": "fix: fix the ui logs from displaying copy logs noise",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/55",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-08-22T06:53:08Z"
+    }
+  ]
+}

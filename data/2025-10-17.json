@@ -1,0 +1,32 @@
+{
+  "date": "2025-10-17",
+  "prs": [
+    {
+      "title": "feat: Add comprehensive TOML configuration file support",
+      "url": "https://github.com/bahdotsh/feedr/pull/13",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "- Add config.rs module with full configuration management\r\n- Support for configurable timeouts, UI settings, and default feeds\r\n- Implement XDG Base Directory specification compliance\r\n- Auto-generate config file with defaults on first run\r\n- Add backwards-compatible data migration from old locations\r\n- Update all components to use configurable values\r\n- Add comprehensive configuration documentation to README\r\n\r\nConfiguration file location: ~/.config/feedr/config.toml\r\nData storage location: ~/.local/share/feedr/feedr_data.json\r\n\r\nCloses #3",
+      "labels": [],
+      "merged_at": "2025-10-17T08:33:18Z"
+    },
+    {
+      "title": "feat: Add mark as read/unread toggle with animated notifications",
+      "url": "https://github.com/bahdotsh/feedr/pull/15",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "- Add toggle_item_read() method to toggle read/unread status\r\n- Implement Space key handler in Dashboard, FeedItems, and Detail views\r\n- Auto-mark items as read when viewing detail page\r\n- Add animated success notification in top-right corner\r\n- Success messages auto-dismiss after 1.5 seconds\r\n- Display \u2713 for marked as read, \u25cb for marked as unread\r\n- Update help text to show Space key functionality\r\n\r\nCloses #8",
+      "labels": [],
+      "merged_at": "2025-10-17T12:31:46Z"
+    },
+    {
+      "title": "feat: Add background refresh with per-domain rate limiting",
+      "url": "https://github.com/bahdotsh/feedr/pull/14",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "Implements automatic background refresh with configurable intervals and intelligent rate limiting to prevent 'too many requests' errors.\r\n\r\nFeatures:\r\n- Configurable auto-refresh interval (refresh_enabled, auto_refresh_interval)\r\n- Per-domain rate limiting with configurable delays (refresh_rate_limit_delay)\r\n- Staggered feed fetching grouped by domain\r\n- Tracks last refresh time and per-domain fetch timestamps\r\n- Auto-refresh timer integrated into TUI event loop\r\n- Comprehensive documentation and configuration examples\r\n\r\nThis is especially useful for Reddit feeds and other rate-limited services.\r\n\r\nCloses #5",
+      "labels": [],
+      "merged_at": "2025-10-17T08:51:29Z"
+    }
+  ]
+}

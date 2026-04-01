@@ -1,0 +1,14 @@
+{
+  "date": "2025-08-28",
+  "prs": [
+    {
+      "title": "fix(utils): add Windows support to fd module",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/56",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "Fixes #43 ",
+      "labels": [],
+      "merged_at": "2025-08-28T02:18:37Z"
+    }
+  ]
+}

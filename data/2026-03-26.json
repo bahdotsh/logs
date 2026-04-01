@@ -1,0 +1,34 @@
+{
+  "date": "2026-03-26",
+  "prs": [
+    {
+      "title": "feat(newsletter): add API endpoints for creating and sending newsletters",
+      "url": "https://github.com/bahdotsh/blogr/pull/99",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "## Summary\n- Add `POST /newsletters/send` endpoint to compose a custom newsletter from markdown content and send it to all approved subscribers (with optional tag filtering)\n- Add `POST /newsletters/preview` endpoint to compose and return rendered HTML/text preview without sending\n- Both endpoints are protected behind API key auth, validate inputs, and use the existing queue-based sender with rate limiting and crash recovery\n\n## Test plan\n- [x] `cargo test` \u2014 all 103 tests pass\n- [x] `cargo clippy` \u2014 no warnings\n- [x] Verify `POST /newsletters/preview` returns composed HTML/text for valid subject + markdown content\n- [x] Verify `POST /newsletters/send` composes and delivers to approved subscribers\n- [x] Verify empty subject/content returns 400\n- [x] Verify unauthenticated requests return 401\n- [x] Verify optional `tag` field filters recipient list",
+      "labels": [],
+      "merged_at": "2026-03-26T18:15:35Z"
+    },
+    {
+      "title": "fix(newsletter): harden robustness with cleanup, rate limiting, validation",
+      "url": "https://github.com/bahdotsh/blogr/pull/98",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "## Summary\n\n- **Startup cleanup**: Wire up existing but uncalled `cleanup_expired_tokens()`, `cleanup_completed_send_queue()`, and `cleanup_old_send_recipients(90)` on `NewsletterManager` initialization to prevent unbounded database growth\n- **API rate limiting**: Add sliding-window rate limiter middleware (configurable via `ApiConfig.rate_limit`) that returns `429 Too Many Requests` when exceeded\n- **Status transition fixes**: Approving a subscriber now clears `declined_at`, declining clears `approved_at` \u2014 both in the database layer (`update_subscriber_status_by_email`) and the API layer (`update_subscriber`)\n- **Email validation hardening**: Add RFC 5321 character validation for local part and per-label domain validation (max 63 chars, no leading/trailing hyphens, alphanumeric + hyphen only)\n- **Tag validation**: New `is_valid_tag()` with `MAX_TAG_LENGTH` (100) and `MAX_TAGS_PER_SUBSCRIBER` (50) enforced at database (`add_tag`, `set_tags`) and API (`update_subscriber_tags`) layers\n- **10 new tests** covering email validation edge cases, status transitions, and tag validation (89 total passing)\n\n## Test plan\n\n- [x] `cargo test -p blogr-cli` \u2014 89 tests pass\n- [x] `cargo clippy --all-targets --all-features -- -D warnings` \u2014 clean\n- [x] `cargo fmt --all -- --check` \u2014 clean",
+      "labels": [],
+      "merged_at": "2026-03-26T13:15:02Z"
+    },
+    {
+      "title": "indxr v0.2.0 announcement",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/7839",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [
+        "Community Links"
+      ],
+      "merged_at": "2026-03-26T01:53:23Z"
+    }
+  ]
+}

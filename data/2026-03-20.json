@@ -1,0 +1,14 @@
+{
+  "date": "2026-03-20",
+  "prs": [
+    {
+      "title": "fix(ui): truncate long file paths so +/- stats stay visible",
+      "url": "https://github.com/bahdotsh/giff/pull/4",
+      "repo": "bahdotsh/giff",
+      "repo_url": "https://github.com/bahdotsh/giff",
+      "body": "## Summary\n\n- Long file paths in the file list panel were pushing `+N -N` change stats off-screen, making them invisible\n- Truncate paths with an ellipsis (`\u2026`) to guarantee the stats suffix always fits within the panel width\n- Uses char-boundary-safe slicing to avoid panics on non-ASCII paths, and a `digit_count` helper to measure stat widths without per-frame allocations\n\n## Test plan\n\n- [x] `cargo build` passes\n- [x] `cargo test` passes (71 tests)\n- [x] Manually verify with a repo containing long file paths \u2014 stats should remain visible\n- [x] Verify with a narrow terminal window \u2014 graceful degradation",
+      "labels": [],
+      "merged_at": "2026-03-20T11:33:59Z"
+    }
+  ]
+}

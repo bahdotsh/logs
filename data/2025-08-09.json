@@ -1,0 +1,50 @@
+{
+  "date": "2025-08-09",
+  "prs": [
+    {
+      "title": "feat: Add comprehensive Podman container runtime support",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/28",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "Add Podman as a new container runtime option alongside Docker and emulation modes, enabling workflow execution in rootless containers for enhanced security and compatibility in restricted environments.\r\n\r\nFeatures:\r\n- New PodmanRuntime implementing ContainerRuntime trait\r\n- CLI --runtime flag with docker/podman/emulation options\r\n- TUI runtime cycling (e \u2192 Docker \u2192 Podman \u2192 Emulation)\r\n- Full container lifecycle management (run, pull, build, cleanup)\r\n- Container preservation support with --preserve-containers-on-failure\r\n- Automatic fallback to emulation when Podman unavailable\r\n- Rootless container execution without privileged daemon\r\n\r\nImplementation:\r\n- crates/executor/src/podman.rs: Complete Podman runtime implementation\r\n- crates/executor/src/engine.rs: Runtime type enum and initialization\r\n- crates/ui/: TUI integration with runtime switching and status display\r\n- crates/wrkflw/src/main.rs: CLI argument parsing for runtime selection\r\n\r\nCloses: Support for rootless container execution in restricted environments",
+      "labels": [],
+      "merged_at": "2025-08-09T09:41:59Z"
+    },
+    {
+      "title": "feat: add exit code support for validation failures",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/27",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-08-09T08:53:08Z"
+    },
+    {
+      "title": "feat: add conditional job execution and flexible needs parsing",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/26",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "- Add support for job-level if conditions with basic expression evaluation\r\n- Support both string and array formats for job needs field (needs: job vs needs: [job])\r\n- Add missing job fields: if_condition, outputs, permissions to Job struct\r\n- Implement job condition evaluation in executor with pattern matching for:\r\n  - Simple boolean conditions (true/false)\r\n  - GitHub event conditions (github.event.pull_request.draft == false)\r\n  - Job output conditions (needs.jobname.outputs.outputname == 'value')\r\n- Jobs with false conditions are now properly skipped with appropriate logging\r\n- Fixes parsing issues with workflows that use changes jobs and conditional execution\r\n\r\nResolves compatibility with workflows like iceoryx2 that use path filtering patterns.",
+      "labels": [],
+      "merged_at": "2025-08-09T08:10:05Z"
+    },
+    {
+      "title": "feat: add --preserve-containers-on-failure flag for debugging",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/25",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "- Add CLI flag to preserve Docker containers when tasks fail\r\n- Create ExecutionConfig structure to pass configuration through system\r\n- Modify DockerRuntime to conditionally skip container cleanup on failure\r\n- Add support for both CLI run and TUI modes\r\n- Log helpful debugging messages with container ID and inspection commands\r\n- Preserve containers only when exit_code != 0 and flag is enabled\r\n- Untrack preserved containers from automatic cleanup system\r\n\r\nFixes issue where failed containers were always deleted, preventing users from inspecting the actual state when debugging workflow failures.",
+      "labels": [],
+      "merged_at": "2025-08-09T07:52:50Z"
+    },
+    {
+      "title": "fix(validators): Add validation for duplicate step IDs within GitHub Actions jobs",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/24",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "GitHub Actions requires step IDs to be unique within each job scope, but wrkflw was not validating this constraint. This caused workflows with duplicate step IDs to pass validation with exit code 0, while GitHub would reject them with \"The identifier 'X' may not be used more than once within the same scope\".\r\n\r\n- Add HashSet tracking of step IDs in validate_steps()\r\n- Check for duplicate IDs and report validation errors\r\n- Use GitHub's exact error message format for consistency\r\n- Step IDs can still be duplicated across different jobs (which is valid)\r\n\r\nFixes the validation gap that allowed invalid workflows to pass undetected.",
+      "labels": [],
+      "merged_at": "2025-08-09T06:10:37Z"
+    }
+  ]
+}

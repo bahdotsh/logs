@@ -1,0 +1,41 @@
+{
+  "date": "2026-03-27",
+  "prs": [
+    {
+      "title": "feat(mcp): add cross-file type flow tracking",
+      "url": "https://github.com/bahdotsh/indxr/pull/11",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n- Add `get_type_flow` MCP tool that tracks where types flow across function boundaries \u2014 shows which functions produce (return) and consume (accept as parameters) a given type\n- Language-aware type extraction from signatures for Rust, Go, TS/JS, Python, Java/Kotlin/C#, and Swift\n- Query-time analysis with no data model or cache changes \u2014 same O(declarations) scan pattern as `get_callers`\n- Supports `path` filter, `include_fields`, `limit`, and `compact` columnar output\n\n## Test plan\n- [x] 13 unit tests for per-language type extraction (Rust, Go, TS, Python, Java, Kotlin, Swift, Ruby, edge cases)\n- [x] 8 integration tests for the tool (producers, consumers, case-insensitivity, compact, path filter, limit, error handling)\n- [x] Tool count assertion updated (21 \u2192 22)\n- [x] `cargo fmt` and `cargo clippy` clean\n- [x] All 249 tests pass",
+      "labels": [],
+      "merged_at": "2026-03-27T17:05:59Z"
+    },
+    {
+      "title": "feat(diff): add PR-aware structural diffs via GitHub API",
+      "url": "https://github.com/bahdotsh/indxr/pull/8",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- Add `indxr diff --pr <N>` CLI command that resolves a GitHub PR's base branch via the API, then runs the existing structural diff pipeline \u2014 showing added/removed/modified declarations without reading raw diffs\n- Extend the MCP `get_diff_summary` tool with an optional `pr` parameter so AI agents can diff PRs without knowing the base ref\n- Add `src/github.rs` module: thin GitHub API client handling token auth (`GITHUB_TOKEN`/`GH_TOKEN`/`gh` CLI fallback), remote URL parsing (HTTPS + SSH), and PR metadata fetching via `ureq`\n\n## Test plan\n\n- [x] `cargo build` \u2014 compiles cleanly (one expected warning for `PrInfo.state` field reserved for future use)\n- [x] `cargo test` \u2014 all 214 tests pass, including 6 new URL parsing tests in `github.rs`\n- [x] Manual: `indxr diff --pr <N>` against a real PR in a GitHub-hosted repo\n- [x] Manual: `indxr diff --since main` via the new subcommand (parity with global `--since` flag)\n- [x] Manual: verify error messages for missing token, non-GitHub remote, invalid PR number\n- [x] Manual: MCP `get_diff_summary` with `{\"pr\": 7}` via `indxr serve`",
+      "labels": [],
+      "merged_at": "2026-03-27T14:53:06Z"
+    },
+    {
+      "title": "feat: add complexity metrics and hotspot analysis",
+      "url": "https://github.com/bahdotsh/indxr/pull/7",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n- Adds per-function complexity metrics (cyclomatic complexity, max nesting depth, parameter count) using tree-sitter AST analysis across all 8 tree-sitter languages (Rust, Python, TS, JS, Go, Java, C, C++)\n- New `get_hotspots` MCP tool returns top N most complex functions ranked by composite score, with path filtering, sort options, and compact mode\n- New `get_health` MCP tool returns aggregate codebase health metrics (avg/median/p90 complexity, documentation %, test count, hottest files)\n- New `--hotspots` CLI flag outputs a formatted complexity table to stdout\n\n## Design\n- Complexity is computed as a **post-processing pass** in `src/parser/complexity.rs` after extraction \u2014 zero changes to any of the 8 language extractors\n- `ComplexityMetrics` is an `Option` field on `Declaration` with `#[serde(default)]` for full backward compatibility\n- Per-language branch node tables cover: if/else, loops, match/switch arms, `&&`/`||`/`??`, catch, ternary\n- Cache version bumped from 2 \u2192 3 (one-time re-parse on upgrade)\n\n## Test plan\n- [x] 7 new unit tests in `complexity.rs` covering Rust, Python, Go, C, and bodyless declarations\n- [x] Tool definition count test updated (19 \u2192 21)\n- [x] All 188 tests pass\n- [x] `cargo clippy -- -D warnings` clean\n- [x] `cargo fmt` clean\n- [x] `indxr --hotspots` verified on indxr's own codebase \u2014 produces reasonable rankings\n- [x] `--filter-path` scoping verified",
+      "labels": [],
+      "merged_at": "2026-03-27T13:46:14Z"
+    },
+    {
+      "title": "feat(init): auto-detect rtk and configure command compression hooks",
+      "url": "https://github.com/bahdotsh/indxr/pull/6",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- `indxr init` now auto-detects [RTK](https://github.com/rtk-ai/rtk) on PATH and configures its PreToolUse hooks alongside indxr's existing hooks\n- Writes `.claude/hooks/rtk-rewrite.sh` (executable) that delegates to `rtk rewrite` with proper exit code handling (rewrite/deny/ask/passthrough)\n- Settings.json gains a third PreToolUse entry for RTK's Bash command rewriting, placed before indxr's git-diff reminder hook\n- CLAUDE.md, .cursorrules, and .windsurfrules get an RTK awareness section when detected\n- `--no-rtk` flag to skip RTK setup; `--no-hooks` continues to skip all hooks as before\n- Graceful degradation: silently skips if rtk/jq not on PATH, no new dependencies added\n\n## Motivation\n\nindxr saves tokens on the code-reading side (MCP tools instead of full file reads), but raw shell command output (git, cargo test, npm, etc.) is the other major token sink. RTK compresses that output by 60-90%. Together they cover both sources of context waste, and `indxr init` becomes the single setup command for both.\n\n## Test plan\n\n- [x] `cargo build` compiles cleanly\n- [x] `cargo test` \u2014 all 181 tests pass (8 new tests for RTK integration)\n- [ ] Manual: `indxr init --claude` with rtk installed \u2192 verify `.claude/hooks/rtk-rewrite.sh` created + executable, settings.json has 3 PreToolUse entries\n- [ ] Manual: `indxr init --claude` without rtk \u2192 verify silent skip, settings.json has 2 entries\n- [ ] Manual: `indxr init --claude --no-rtk` with rtk installed \u2192 verify rtk skipped\n- [ ] Manual: `indxr init --claude --no-hooks` \u2192 no settings.json or hook script created",
+      "labels": [],
+      "merged_at": "2026-03-27T07:51:24Z"
+    }
+  ]
+}

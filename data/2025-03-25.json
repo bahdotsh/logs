@@ -1,0 +1,23 @@
+{
+  "date": "2025-03-25",
+  "prs": [
+    {
+      "title": "fix: fixes the selection highlight and navigation issue",
+      "url": "https://github.com/bahdotsh/zp/pull/23",
+      "repo": "bahdotsh/zp",
+      "repo_url": "https://github.com/bahdotsh/zp",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-03-25T12:46:10Z"
+    },
+    {
+      "title": "feat: zp daemon",
+      "url": "https://github.com/bahdotsh/zp/pull/22",
+      "repo": "bahdotsh/zp",
+      "repo_url": "https://github.com/bahdotsh/zp",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-03-24T20:28:22Z"
+    }
+  ]
+}

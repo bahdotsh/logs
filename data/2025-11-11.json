@@ -1,0 +1,23 @@
+{
+  "date": "2025-11-11",
+  "prs": [
+    {
+      "title": "Fix: issue 19 theme compatibility validation",
+      "url": "https://github.com/bahdotsh/blogr/pull/58",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-11-11T08:53:46Z"
+    },
+    {
+      "title": "theme: add certifications section to slate-portfolio",
+      "url": "https://github.com/bahdotsh/blogr/pull/57",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-11-11T08:32:47Z"
+    }
+  ]
+}

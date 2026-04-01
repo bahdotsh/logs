@@ -1,0 +1,68 @@
+{
+  "date": "2026-03-29",
+  "prs": [
+    {
+      "title": "feat: remove bullet before checkboxes and make them interactive",
+      "url": "https://github.com/bahdotsh/mdterm/pull/39",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\nCloses #12\n\n- **Remove redundant bullet before checkboxes**: Task list items were rendering with both a bullet (`\u2022 `) and the checkbox symbol (`\u2713`/`\u25cb`). The `TaskListMarker` handler now strips the bullet from the preceding span, keeping only indentation for nested items.\n- **Make checkboxes interactive**: Clicking a task list item toggles its checked/unchecked state, writes the change back to the source markdown file, and rebuilds the view. A new `LineMeta::TaskItem` variant distinguishes task items from regular list items, carrying checked state and a document-wide task index. Supports all three markdown list markers (`-`, `*`, `+`).\n\n### Files changed\n- `src/style.rs` \u2014 Added `TaskItem` variant to `LineMeta`, updated wrap propagation\n- `src/markdown.rs` \u2014 Strip bullet for task items, track task state, emit `TaskItem` metadata\n- `src/viewer.rs` \u2014 `toggle_task()` handler: finds Nth task marker in source, flips `[x]` \u2194 `[ ]`, writes to disk, rebuilds\n- `test.md` \u2014 Added standalone checkboxes section\n\n## Test plan\n\n- [x] `cargo clippy` \u2014 no warnings\n- [x] `cargo test` \u2014 all 123 tests pass\n- [x] `cargo run -- test.md` \u2014 task items render without bullet prefix (just `\u2713 Task` / `\u25cb Task`)\n- [x] Click a checkbox \u2014 toggles visually and persists to source file\n- [x] Verify `cat test.md` reflects toggled state after click\n- [x] Test with stdin (`echo \"- [ ] task\" | cargo run`) \u2014 toggle works visually, no file write attempted\n- [x] Test nested task lists \u2014 indentation preserved after bullet removal",
+      "labels": [],
+      "merged_at": "2026-03-29T06:28:48Z"
+    },
+    {
+      "title": "fix(markdown): preserve link styling inside table cells",
+      "url": "https://github.com/bahdotsh/mdterm/pull/38",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\n- Fix links inside markdown tables being rendered as plain text instead of interactive links (fixes #26)\n- The `Event::Text` handler checked `in_table` before `in_link`, so link URL/styling was silently discarded for table cell content\n- Added `in_link` check inside the table branch to apply link color, underline, and `link_url` metadata\n\n## Test plan\n\n- [x] `cargo run -- test.md` \u2014 verify the \"Links in Tables\" section shows colored, underlined links\n- [x] Press `f` (LinkPicker) \u2014 verify table links (crates.io, docs.rs, #math-rendering anchor) appear in the list\n- [x] Click a table link \u2014 verify it opens correctly\n- [x] `cargo clippy` and `cargo test` pass cleanly",
+      "labels": [],
+      "merged_at": "2026-03-29T05:48:40Z"
+    },
+    {
+      "title": "fix(viewer): eliminate overlay flicker by adding dirty tracking",
+      "url": "https://github.com/bahdotsh/mdterm/pull/37",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\nFixes #29 \u2014 pop-up menus (TOC, Link Picker, Fuzzy Heading) flickered when navigating with arrow keys because `render_frame()` ran unconditionally on every event loop iteration, even when nothing changed.\n\n- **Add dirty flag to `ViewerState`** \u2014 `render_frame()` only executes when `dirty` is true. For overlay key handlers, state is snapshot before/after dispatch; if nothing changed (e.g. pressing Up at the top of a list), the redraw is skipped entirely.\n- **Suppress images during all overlay modes** \u2014 previously only Help mode suppressed Kitty image delete-all + re-transmit. Now all overlays (TOC, LinkPicker, FuzzyHeading, Help) suppress images, avoiding expensive escape sequences every frame.\n\n## Test plan\n\n- [x] Open a markdown file with headings \u2192 `o` for TOC \u2192 hold Up/Down at boundaries \u2192 verify no flicker\n- [x] Navigate within TOC normally \u2192 verify selection updates \u2192 Enter jumps correctly\n- [x] Open Link Picker (`f`) \u2192 same boundary tests\n- [x] Open Fuzzy Heading (`:`) \u2192 type, navigate, boundary tests\n- [x] Open Help (`F1`) \u2192 scroll up/down \u2192 no regression\n- [x] Normal scrolling (no overlay) \u2192 no regression, images still render\n- [x] Resize terminal while overlay open \u2192 verify correct re-layout\n- [x] File watching: edit file externally while viewer is open \u2192 verify reload works\n- [x] Toast: copy a code block \u2192 verify toast appears and disappears",
+      "labels": [],
+      "merged_at": "2026-03-29T05:40:28Z"
+    },
+    {
+      "title": "fix(style): preserve blockquote bar prefix on wrapped lines",
+      "url": "https://github.com/bahdotsh/mdterm/pull/36",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\nFixes #27 \u2014 long blockquote text that wraps to multiple lines now preserves the `\u2503` bar prefix on all continuation lines.\n\n- Add `LineMeta::BlockQuote { bar_color }` variant so `wrap_lines` can identify blockquote lines\n- Strip the prefix, wrap content at reduced width (`width - 4`), and re-add the prefix to every wrapped line\n- Fix trailing bar-only empty line that appeared at the end of blockquotes\n\n## Test plan\n\n- [x] `cargo test` \u2014 all 122 tests pass (including 2 new blockquote wrapping tests)\n- [x] `cargo clippy` \u2014 no warnings\n- [x] `cargo fmt` \u2014 clean\n- [x] Visual verification: run `cargo run -- <file.md>` with a long blockquote at a narrow terminal width and confirm all continuation lines show the `\u2503` bar",
+      "labels": [],
+      "merged_at": "2026-03-29T05:20:12Z"
+    },
+    {
+      "title": "feat(viewer): add arrow/vim key navigation to link picker",
+      "url": "https://github.com/bahdotsh/mdterm/pull/35",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\n- Replace number-typing input in the link picker with arrow key and vim key (j/k) cursor navigation, matching the TOC and fuzzy heading overlay UX\n- Add visual selection highlighting (\u25b8 marker + highlighted background) and viewport scrolling for long link lists\n- Show position indicator in title (`Links (3/12)`) and updated footer hints\n\nCloses #28\n\n## Test plan\n\n- [x] Open a markdown file with links (`cargo run -- README.md`)\n- [x] Press `f` to open the link picker\n- [x] Verify j/k and arrow keys move the selection highlight\n- [x] Verify PageUp/PageDown jump by page\n- [x] Verify g/G go to first/last entry\n- [x] Verify Enter opens the selected link\n- [x] Verify Esc closes without opening\n- [x] Test with a file that has more links than fit in the viewport to verify scrolling",
+      "labels": [],
+      "merged_at": "2026-03-29T04:49:25Z"
+    },
+    {
+      "title": "fix(viewer): clip slide viewport to current slide boundaries",
+      "url": "https://github.com/bahdotsh/mdterm/pull/34",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\n- Fixes slide mode rendering content from subsequent slides beyond the current slide's boundary (#30)\n- Computes `slide_end` from `slide_boundaries[current_slide + 1]` and gates all `wrapped.get()` calls with `.filter(|_| line_idx < slide_end)` so lines past the boundary fall through to the existing blank-row path\n- Applies the same guard to both image rendering passes (inline and block) to prevent images bleeding across slides\n- Removes the unused `_display_lines`/`_display_offset` variables that had a partial, never-wired-up version of this fix\n\n## Test plan\n\n- [x] Create a markdown file with `---` separators (3+ slides with varying content lengths)\n- [x] Run `mdterm --slides file.md` and verify each slide only shows its own content\n- [x] Verify slide navigation (arrow keys, space, h/l/j/k) still works correctly\n- [x] Verify status bar still shows correct \"Slide X/Y\" indicator\n- [x] Verify slides with images don't bleed image content across boundaries\n- [x] `cargo test` passes (120/120)\n- [x] `cargo clippy` and `cargo fmt --check` clean\n\nCloses #30",
+      "labels": [],
+      "merged_at": "2026-03-29T04:34:49Z"
+    },
+    {
+      "title": "perf(mcp): reduce tool definition token overhead by 64%",
+      "url": "https://github.com/bahdotsh/indxr/pull/15",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- **Shorten all tool/param descriptions** (~50-70% shorter) \u2014 no behavior change, pure text trimming\n- **Conditional `member` param** \u2014 only injected when serving a multi-member workspace, saving ~624 tokens/round for single-project repos\n- **Default tool set reduced from 23 \u2192 15** \u2014 8 specialized tools (`get_hotspots`, `get_health`, `get_type_flow`, `get_dependency_graph`, `get_diff_summary`, `get_token_estimate`, `list_workspace_members`, `regenerate_index`) moved behind `--all-tools` flag. They still work if called, just not advertised in `tools/list`\n\n### Why\n\nBenchmark showed tool definitions accounted for **~438K tokens** of overhead across 40 questions \u2014 139% of the total delta vs baseline. The 23 tool schemas cost ~3,500 tokens per API round vs ~370 for baseline's 3 tools. This overhead compounded across 3.5 avg rounds per question was the dominant cost, not the tool responses themselves.\n\n### Impact\n\n| Metric | Before | After (default) | Reduction |\n|--------|--------|-----------------|-----------|\n| Tool schema tokens/round | ~3,500 | ~1,270 | **64%** |\n| Projected savings across 40 benchmark questions | \u2014 | ~312K fewer tokens | \u2014 |\n\n## Test plan\n\n- [x] All 325 existing tests pass\n- [x] 3 new tests: `test_tool_definitions_all_tools`, `test_tool_definitions_default_excludes_extended`, `test_tool_definitions_member_param_only_in_workspace`\n- [x] Verified default serves 15 tools with no `member` param\n- [x] Verified `--all-tools` serves all 23 tools\n- [ ] Re-run accuracy benchmark to confirm token reduction: `python -m bench --runs 1`",
+      "labels": [],
+      "merged_at": "2026-03-28T18:56:25Z"
+    }
+  ]
+}

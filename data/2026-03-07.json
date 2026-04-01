@@ -1,0 +1,32 @@
+{
+  "date": "2026-03-07",
+  "prs": [
+    {
+      "title": "fix: mathjax rendering",
+      "url": "https://github.com/bahdotsh/blogr/pull/82",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-07T07:11:48Z"
+    },
+    {
+      "title": "fix: hot reload",
+      "url": "https://github.com/bahdotsh/blogr/pull/81",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-07T06:34:46Z"
+    },
+    {
+      "title": "fix: syntax highlighting",
+      "url": "https://github.com/bahdotsh/blogr/pull/80",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-07T05:37:40Z"
+    }
+  ]
+}

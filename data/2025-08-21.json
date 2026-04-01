@@ -1,0 +1,32 @@
+{
+  "date": "2025-08-21",
+  "prs": [
+    {
+      "title": "fix(evaluator): remove incorrect name field requirement validation",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/53",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "The 'name' field is optional per GitHub Actions specification. When omitted, GitHub displays the workflow file path relative to the repository root.\r\n\r\nThis change removes the validation logic that incorrectly enforced the name field as required, aligning the validator with the official JSON schema which only requires 'on' and 'jobs' fields at the root level.\r\n\r\nFixes #50",
+      "labels": [],
+      "merged_at": "2025-08-21T18:14:17Z"
+    },
+    {
+      "title": "fix: ubuntu container image selection",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/52",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "Fixes: #49",
+      "labels": [],
+      "merged_at": "2025-08-21T17:07:22Z"
+    },
+    {
+      "title": "   feat: Add .gitignore support for file copying",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/51",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "",
+      "labels": [],
+      "merged_at": "2025-08-21T10:02:31Z"
+    }
+  ]
+}

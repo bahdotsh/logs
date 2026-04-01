@@ -1,0 +1,14 @@
+{
+  "date": "2025-08-02",
+  "prs": [
+    {
+      "title": "feat: implement peer-to-peer clipboard history synchronization",
+      "url": "https://github.com/bahdotsh/zp/pull/24",
+      "repo": "bahdotsh/zp",
+      "repo_url": "https://github.com/bahdotsh/zp",
+      "body": "- Add P2P sync system with HTTP and SSH tunnel support\r\n- Implement REST API server for sync operations (/sync, /history, /health)\r\n- Add timestamp-based conflict resolution and merge algorithm\r\n- Support local network (HTTP) and remote (SSH) peer connections\r\n- Implement automatic config migration for backward compatibility\r\n- Add comprehensive CLI commands for sync management\r\n- Include peer management (add/remove/test connections)\r\n- Add sync daemon with periodic auto-sync functionality\r\n- Support cross-platform sync (local, remote, virtual machines)\r\n\r\nNew dependencies:\r\n- tokio: async runtime for HTTP server and sync operations\r\n- warp: HTTP server framework for sync API\r\n- reqwest: HTTP client for peer communication\r\n- hostname: peer ID generation\r\n- fastrand: random suffix generation\r\n\r\nNew modules:\r\n- src/config.rs: sync configuration management\r\n- src/sync/: complete P2P sync implementation\r\n  - handler.rs: high-level sync operations\r\n  - protocol.rs: sync protocol and SSH tunneling\r\n  - server.rs: HTTP API server\r\n  - mod.rs: sync data structures and types\r\n\r\nCLI additions:\r\n--sync-daemon, --sync-now, --sync-config, --sync-enable, --sync-disable, --add-peer, --remove-peer, --test-peer\r\n\r\nFiles modified:\r\n- Cargo.toml: add async and HTTP dependencies\r\n- src/main.rs: async main + sync command handlers\r\n- src/query.rs: new CLI arguments for sync\r\n- src/history.rs: add Clone trait to ClipboardHistoryEntry\r\n- src/lib.rs: expose new config and sync modules\r\n\r\nDocumentation: SYNC_USAGE.md with setup and usage examples",
+      "labels": [],
+      "merged_at": "2025-08-02T07:16:50Z"
+    }
+  ]
+}

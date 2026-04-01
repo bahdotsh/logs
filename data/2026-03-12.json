@@ -1,0 +1,14 @@
+{
+  "date": "2026-03-12",
+  "prs": [
+    {
+      "title": "mdterm v1.0.0  announcement",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/7752",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-03-12T01:36:24Z"
+    }
+  ]
+}

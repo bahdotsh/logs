@@ -1,0 +1,68 @@
+{
+  "date": "2026-03-18",
+  "prs": [
+    {
+      "title": "docs: add giff, wrkflw, blogr, and snipt",
+      "url": "https://github.com/ratatui/awesome-ratatui/pull/264",
+      "repo": "ratatui/awesome-ratatui",
+      "repo_url": "https://github.com/ratatui/awesome-ratatui",
+      "body": "Four new ratatui-based projects:\r\n\r\n- giff: TUI for git diffs with interactive rebase\r\n- wrkflw: TUI for validating GitHub Actions locally\r\n- blogr: static site generator with a terminal editor\r\n- snipt: text snippet expansion with a TUI manager\r\n\r\n<!-- Thanks for making Ratatui awesome! \ud83d\udc2d -->\r\n\r\n* Link to your project (GitHub/crates.io): \r\n   - https://github.com/bahdotsh/giff\r\n   - https://github.com/bahdotsh/wrkflw\r\n   - https://github.com/bahdotsh/blogr\r\n   - https://github.com/snipt/snipt\r\n\r\n* Description (optional): \r\n   Four ratatui-based TUI tools:\r\n   - giff: git diffs with interactive rebase\r\n   - wrkflw: validate/execute GitHub Actions locally\r\n   - blogr: terminal-based static site generator with TUI editor\r\n   - snipt: text snippet expansion with TUI manager\r\n\r\n### giff\r\n  ![giff demo](https://github.com/bahdotsh/giff/raw/main/assets/demo.gif)\r\n\r\n  ### wrkflw\r\n  ![wrkflw demo](https://github.com/bahdotsh/wrkflw/raw/main/demo.gif)\r\n\r\n  ### blogr\r\n  ![blogr demo](https://github.com/bahdotsh/blogr/raw/main/demo.gif)\r\n\r\n  ### snipt\r\n  ![snipt screenshot](https://github.com/snipt/snipt/raw/main/assets/images/snipt-tui-screenshot.png)\r\n\r\n\r\n-->",
+      "labels": [],
+      "merged_at": "2026-03-18T18:28:42Z"
+    },
+    {
+      "title": "fix(link): stop showing raw URLs inline, show link text in picker",
+      "url": "https://github.com/bahdotsh/mdterm/pull/25",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\n- **Inline links** no longer show the raw URL after the link text \u2014 just the text, like GitHub renders it (fixes #22)\n- **Link picker** (`f` key) now shows `text \u2192 URL` for each entry instead of just the URL, and same-URL links with different text get separate entries (fixes #23)\n\n## Changes\n\n- `markdown.rs`: Remove URL span from `End(TagEnd::Link)` handler\n- `viewer.rs`: Replace URL-based dedup with adjacency-based merging for link extraction; update overlay to render `text \u2192 URL` with distinct colors\n\n## Test plan\n\n- [x] Open `test.md`, verify links show only text inline (no URL appended)\n- [x] Press `f`, verify each link shows \"text \u2192 URL\" format\n- [x] Confirm same-URL links (`readme 1`, `readme 2`) appear as separate entries\n- [x] Image links still show URL-only in the picker\n\nCloses #22, closes #23",
+      "labels": [],
+      "merged_at": "2026-03-18T16:00:18Z"
+    },
+    {
+      "title": "perf(image): move image pre-rendering off the main thread",
+      "url": "https://github.com/bahdotsh/mdterm/pull/24",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\n- **Move all expensive image work (Lanczos3 resize, PNG/Sixel/base64 encode) to background threads** \u2014 the main thread never touches image pixels, eliminating UI hangs during image loading\n- **Replace `rebuild()` with lightweight `finalize_layout()`** when image fetches complete \u2014 adjusts placeholder rows and rebuilds indices without re-parsing the entire markdown document\n- **Store raw images as `Arc<DynamicImage>`** to avoid cloning large pixel buffers when handing off to pre-render threads\n\n## Details\n\nThe old code fetched images in the background but ran `pre_render()` synchronously on the main thread. For large images this meant hundreds of milliseconds of Lanczos3 resizing and protocol-specific encoding blocking the event loop. It also called `rebuild()` (full markdown re-parse) on every single image completion.\n\nNow there are two background channels:\n1. **Fetch channel** (existing) \u2014 downloads/decodes raw images\n2. **Render channel** (new) \u2014 resizes and encodes for the target protocol (Kitty/iTerm2/Sixel/HalfBlock)\n\nResults from stale terminal widths or cancelled file switches are automatically discarded. The viewer shows a \"Loading\" placeholder until both fetch and pre-render complete.\n\n## Test plan\n\n- [x] `cargo build` \u2014 compiles cleanly\n- [x] `cargo test` \u2014 all 120 tests pass\n- [x] `cargo clippy` \u2014 no warnings\n- [x] Manual: open a markdown file with multiple remote images, verify smooth scrolling during load\n- [x] Manual: resize terminal while images are loading, verify images re-render at correct size\n- [x] Manual: switch files while images are loading, verify no stale images appear",
+      "labels": [],
+      "merged_at": "2026-03-18T15:46:45Z"
+    },
+    {
+      "title": "feat: toast overlay, click-to-copy for headings/lists/code blocks",
+      "url": "https://github.com/bahdotsh/mdterm/pull/20",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\n- Replace transient status bar messages with a centered toast overlay (auto-expires after 1s)\n- Click-to-copy: click any heading section, list, or code block to copy its content to clipboard\n- Add `LineMeta::ListItem { list_id }` to track list membership for whole-list copy\n- Pre-compute TOC section ranges and content for instant heading-section copy\n- Pointer cursor shown over all copyable elements (headings, lists, code blocks)\n- Fix UTF-8 panic in heading label truncation (byte-index slice \u2192 char-safe truncation)\n- Fix toast overlay positioning to account for title bar and clamp on small terminals\n- Update README to reflect new click-to-copy behavior\n\n## Test plan\n\n- [x] Click a code block \u2192 toast says \"Code block copied\", clipboard has the code\n- [x] Click a heading line \u2192 toast says \"Copied: <heading>\", clipboard has the full section text\n- [x] Click a list item \u2192 toast says \"List copied\", clipboard has the entire list\n- [x] Click a link \u2192 still opens/navigates as before (no copy)\n- [x] Hover over code/heading/list \u2192 pointer cursor appears\n- [x] Hover over normal text \u2192 default cursor\n- [x] Toast disappears after ~1 second\n- [x] `Y` still copies full document, `c` still copies nearest code block\n- [x] Test with a heading containing emoji/CJK characters \u2014 no panic on click\n- [x] Resize to a very small terminal \u2014 toast stays within bounds",
+      "labels": [],
+      "merged_at": "2026-03-18T15:01:14Z"
+    },
+    {
+      "title": "feat: support local file links with back navigation",
+      "url": "https://github.com/bahdotsh/mdterm/pull/19",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\n- Resolve relative markdown links (e.g. `docker.md`, `./foo.md`, `file.md#section`) against the current file's directory and open them in the viewer instead of showing \"unsupported URL scheme\"\n- Add a navigation history stack with `Backspace` to go back to the previous file and scroll position\n- Add test files (`test.md` section + `test_linked.md`) to exercise local link navigation\n\nCloses #11\n\n## Test plan\n\n- [ ] `cargo run -- test.md`, press `f`, select a local file link \u2014 it opens in the viewer\n- [ ] Press `Backspace` \u2014 returns to `test.md` at the original scroll position\n- [ ] Try the anchor link (`test_linked.md#heading-for-anchor-test`) \u2014 opens file and scrolls to heading\n- [ ] Try the nonexistent link \u2014 shows blocked message\n- [ ] Click a local file link directly with mouse \u2014 same behavior\n- [ ] Press `F1` \u2014 help screen shows `Backspace` keybinding\n- [ ] `cargo test` passes, `cargo clippy` clean",
+      "labels": [],
+      "merged_at": "2026-03-18T11:19:58Z"
+    },
+    {
+      "title": "feat: add Sixel graphics protocol support",
+      "url": "https://github.com/bahdotsh/mdterm/pull/18",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\nCloses #1\n\nAdds Sixel image protocol support as a middle tier between iTerm2 and the Unicode half-block fallback. Terminals like **foot**, **mlterm**, **mintty**, and **contour** can now render actual pixel-level images instead of the half-block approximation.\n\n- **Zero new dependencies** \u2014 Sixel encoding implemented in-house (median-cut quantization to 256 colors, 6-row band encoding with RLE compression)\n- **Auto-detection** for known Sixel terminals via `TERM_PROGRAM` / `TERM` env vars\n- **Manual override** via `MDTERM_IMAGE_PROTOCOL=sixel` for terminals not auto-detected\n- **Block rendering** with crop caching for smooth scrolling (same pattern as iTerm2 path)\n- **8 new unit tests** covering encoding, RLE, and quantization\n\n### Protocol priority\n\n```\nKitty > iTerm2 > Sixel > HalfBlock\n```\n\nTerminals that support multiple protocols (e.g. WezTerm supports both Kitty and Sixel) will use the most efficient one.\n\n### Auto-detected Sixel terminals\n\n| Terminal | Detection method |\n|----------|-----------------|\n| foot | `TERM_PROGRAM=foot` or `TERM=foot`/`foot-extra` |\n| mlterm | `TERM_PROGRAM=mlterm` or `MLTERM` env var |\n| mintty | `TERM_PROGRAM=mintty` |\n| contour | `TERM_PROGRAM=contour` |\n\n## Test plan\n\n- [x] `cargo check` \u2014 compiles clean\n- [x] `cargo clippy` \u2014 zero warnings\n- [x] `cargo test` \u2014 all 117 tests pass (109 existing + 8 new)\n- [x] `cargo build --release` \u2014 release build succeeds\n- [ ] Manual test on a Sixel-capable terminal (e.g. `MDTERM_IMAGE_PROTOCOL=sixel mdterm README.md`)",
+      "labels": [],
+      "merged_at": "2026-03-18T11:03:50Z"
+    },
+    {
+      "title": "feat: clickable links, hover cursor, and mouse capture toggle",
+      "url": "https://github.com/bahdotsh/mdterm/pull/17",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n\nFixes #13 \u2014 mouse capture was grabbing all events, preventing text selection and link clicks.\n\n- **Click to open links**: Left-clicking a link in the rendered markdown opens it in the default browser (uses the same `open::that()` as the link picker)\n- **Hover cursor**: Mouse pointer changes to a hand cursor (OSC 22) when hovering over links, resets when moving off. Terminals that don't support OSC 22 silently ignore it\n- **Mouse capture toggle (`m`)**: Press `m` to disable mouse capture entirely so the terminal can handle text selection natively. Press again to re-enable scroll wheel support. Status message confirms the state\n\n## Test plan\n\n- [x] `cargo clippy` \u2014 no warnings\n- [x] `cargo test` \u2014 102 passed, 0 failed\n- [x] Open a markdown file with links, verify left-click opens them in browser\n- [x] Hover over a link and verify cursor changes to pointer (in supported terminals: kitty, foot, xterm)\n- [x] Press `m` to toggle mouse capture off, verify text selection works\n- [x] Press `m` again, verify scroll wheel works\n- [x] Verify `F1` help screen shows the new `m` keybinding",
+      "labels": [],
+      "merged_at": "2026-03-18T10:24:37Z"
+    }
+  ]
+}
