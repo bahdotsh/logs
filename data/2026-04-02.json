@@ -1,0 +1,106 @@
+{
+  "date": "2026-04-02",
+  "prs": [
+    {
+      "title": "docs: clean up READMEs, remove dead files and bloat",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/84",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- **Rewrote main README** from 610 lines to ~170 \u2014 removed duplicate sections, speculative roadmap, and verbose limitation disclaimers\n- **Removed 12 dead files**: junk test files (`hello.cpp`, `hello.rs`, `test.py`), duplicate `AGENTS.md`, verbose `VERSION_MANAGEMENT.md`, `GITLAB_USAGE.md` (merged into README), `TESTING_PODMAN.md`, `README_SECURITY.md`, 3 asciinema recordings, and 2 unused GIFs (~7MB)\n- **Updated crate READMEs**: `crates/README.md` now lists all 14 crates with descriptions; `tests/README.md` and `examples/secrets-demo/README.md` trimmed\n\nNet: 3,819 lines deleted, 197 added.\n\n## Test plan\n\n- [ ] Verify all links in README.md resolve correctly (demo.gif still exists)\n- [ ] Verify crate README table matches actual crates in `crates/`\n- [ ] Confirm no removed file is referenced by Cargo.toml or build scripts",
+      "labels": [],
+      "merged_at": "2026-04-02T18:28:51Z"
+    },
+    {
+      "title": "feat(executor): add GitHub Actions environment file read-back",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/83",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- Adds post-step read-back of `GITHUB_OUTPUT`, `GITHUB_ENV`, `GITHUB_PATH`, and `GITHUB_STEP_SUMMARY` files, enabling inter-step data flow in GHA emulation\n- Adds `${{ steps.<id>.outputs.<key> }}` and `${{ env.<name> }}` expression substitution so step outputs and dynamic env vars are resolved in run commands\n- Restructures the `execute_job()` step loop from an async-block wrapper to a deadline-based timeout, allowing `job_env` mutation between steps\n\n## What works now\n\n```yaml\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - id: set-output\n        run: echo \"version=1.2.3\" >> $GITHUB_OUTPUT\n      - run: echo \"Got ${{ steps.set-output.outputs.version }}\"\n      # ^ resolves to \"Got 1.2.3\"\n\n      - run: echo \"MY_VAR=hello\" >> $GITHUB_ENV\n      - run: echo \"$MY_VAR\"\n      # ^ sees \"hello\" in env\n\n      - run: echo \"/custom/bin\" >> $GITHUB_PATH\n      - run: echo \"$PATH\"\n      # ^ has /custom/bin prepended\n```\n\n## Files changed\n\n| File | Change |\n|------|--------|\n| `crates/executor/src/github_env_files.rs` | **NEW** \u2014 GHA key-value file parser (simple + heredoc format) with 11 tests |\n| `crates/executor/src/engine.rs` | Extended `StepResult` with `outputs` field, restructured step loops, added post-step read-back |\n| `crates/executor/src/substitution.rs` | Added `steps.*.outputs.*` and `env.*` regex patterns + substitution functions with 7 tests |\n| `crates/executor/src/lib.rs` | Module registration |\n| `crates/ui/src/handlers/workflow.rs` | Backward-compatible `StepResult` field addition |\n\n## Test plan\n\n- [x] `cargo fmt --all` \u2014 clean\n- [x] `cargo clippy --workspace` \u2014 zero warnings\n- [x] `cargo test --workspace` \u2014 all 344 tests pass (18 new tests added)\n- [x] Manual smoke test with a workflow using `$GITHUB_OUTPUT` step outputs",
+      "labels": [],
+      "merged_at": "2026-04-02T18:11:36Z"
+    },
+    {
+      "title": "feat(executor): easy GHA emulation fixes for better compatibility",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/82",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\nImplements four low-risk, well-scoped fixes to improve GitHub Actions emulation fidelity:\n\n- **Expand `github.*` context**: Adds 13 missing `GITHUB_*` env vars (`CI`, `GITHUB_ACTIONS`, `GITHUB_REF_NAME`, `GITHUB_REF_TYPE`, `GITHUB_REPOSITORY_OWNER`, `GITHUB_RUN_ATTEMPT`, `GITHUB_SERVER_URL`, `GITHUB_API_URL`, `GITHUB_GRAPHQL_URL`, `GITHUB_HEAD_REF`, `GITHUB_BASE_REF`, `GITHUB_TRIGGERING_ACTOR`, `GITHUB_RETENTION_DAYS`), improves `GITHUB_ACTOR` to derive from `git config user.name`/`$USER`, adds `GITHUB_JOB` per-job\n- **Enforce `timeout-minutes`**: Parses job-level `timeout-minutes`, wraps job execution in `tokio::time::timeout` (default 360 min per GHA spec), wraps step execution when `step.timeout_minutes` is set\n- **Implement `defaults.run`**: Adds `Defaults`/`DefaultsRun` structs, supports `defaults.run.shell` and `defaults.run.working-directory` at both workflow and job level with proper fallback chain (step > job defaults > workflow defaults > bash). Shell now uses `-e` flag for bash/sh matching real GHA behavior\n- **Implement `hashFiles()`**: Adds `sha2`/`glob` dependencies, implements glob-based file matching with SHA-256 hashing, deterministic sort order, wired into the expression substitution pipeline\n\n## Test plan\n\n- [x] `cargo fmt --all` \u2014 no issues\n- [x] `cargo clippy --workspace` \u2014 no warnings\n- [x] `cargo test --workspace` \u2014 all tests pass (164 executor, 21 parser, all others)\n- [x] 11 new unit tests for environment helper functions\n- [x] 1 new parser test for `timeout-minutes`\n- [x] 1 new parser test for `defaults.run`\n- [x] 7 new unit tests for `hashFiles()` (single/multiple patterns, no matches, recursive, deterministic, inline text, combined with matrix)",
+      "labels": [],
+      "merged_at": "2026-04-02T12:30:41Z"
+    },
+    {
+      "title": "ci: modernize workflows to match mdterm CI pattern",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/81",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "Replace monolithic build.yml with split ci.yml (parallel fmt, clippy, build+test jobs). Update all actions to modern versions (checkout@v4, dtolnay/rust-toolchain, rust-cache@v2). Overhaul release workflow with more build targets (musl, aarch64), simpler changelog, and crates.io publish step.",
+      "labels": [],
+      "merged_at": "2026-04-02T11:01:58Z"
+    },
+    {
+      "title": "feat(ui): add job selection mode to TUI for running individual jobs",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/80",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- Adds a job selection sub-view to the TUI Workflows tab \u2014 press Enter on a workflow to see its jobs, then Enter on a job to run just that one (with transitive deps), `a` to run all, or Esc to go back\n- Reuses the existing `ExecutionConfig.target_job` and `filter_plan_to_job()` machinery that the CLI `--job` flag already uses\n- Updates status bar hints and help overlay to document the new keybindings\n\n## Test plan\n\n- [x] `cargo build --features tui` compiles cleanly\n- [x] `cargo clippy --features tui` passes\n- [x] `cargo test target_job` \u2014 existing target_job tests pass\n- [x] Manual: `wrkflw tui` \u2192 select workflow \u2192 Enter \u2192 see jobs listed \u2192 Enter on a job \u2192 only that job executes\n- [x] Manual: In job selection mode, press `a` \u2192 all jobs execute\n- [x] Manual: In job selection mode, press Esc \u2192 returns to workflow list",
+      "labels": [],
+      "merged_at": "2026-04-02T10:08:59Z"
+    },
+    {
+      "title": "feat(ui): make TUI optional behind a cargo feature flag",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/79",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\nCloses #41\n\n- Adds a `tui` Cargo feature flag (**enabled by default**) to `wrkflw-ui` and the main binary crate\n- When built with `--no-default-features`, `ratatui`/`crossterm` are excluded, the `tui` subcommand is removed, and running with no args prints help\n- All CLI subcommands (`validate`, `run`, `trigger`, `list`) remain fully functional without TUI\n- Removes unused direct `crossterm`/`ratatui` deps from the binary crate (they were only needed transitively via `wrkflw-ui`)\n\n### Usage\n\n```sh\n# Default build (TUI included, same as before)\ncargo build\n\n# Minimal build (no TUI, smaller binary)\ncargo build --no-default-features\n\n# Install without TUI\ncargo install wrkflw --no-default-features\n```\n\n## Test plan\n\n- [x] `cargo check` \u2014 default build compiles\n- [x] `cargo check --no-default-features` \u2014 no-TUI build compiles\n- [x] `cargo test` \u2014 all tests pass with default features\n- [x] `cargo test --no-default-features` \u2014 all tests pass without TUI\n- [x] `cargo clippy` \u2014 clean on both feature configurations\n- [x] `cargo fmt --check` \u2014 formatting clean",
+      "labels": [],
+      "merged_at": "2026-04-02T09:21:59Z"
+    },
+    {
+      "title": "feat(validate): cross-check local composite action required inputs",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/78",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- When a workflow step uses a local composite action (`uses: ./path`), `wrkflw validate` now reads the action's `action.yml`, identifies inputs with `required: true` (and no `default`), and reports an error if they're missing from the step's `with:` block.\n- Threads the repo root path through the validator chain (`evaluate_workflow_file` \u2192 `validate_jobs` \u2192 `validate_steps` \u2192 `validate_action_reference`) so local action paths can be resolved.\n- Case-insensitive input matching (consistent with GitHub Actions behavior). Graceful degradation when repo root or action file is unavailable.\n\nCloses #67\n\n## Test plan\n\n- [x] 10 new unit tests in `crates/validators/src/actions.rs` covering: missing required input, provided input, required+default passes, no inputs section, missing action dir, missing action.yml, case-insensitive matching, multiple missing inputs, `None` repo_root skips, `.yaml` extension\n- [x] All existing tests updated for new signatures and passing\n- [x] `cargo test` \u2014 full suite passes (273 tests, 0 failures)\n- [x] `cargo fmt --check` \u2014 clean\n- [x] `cargo clippy --all-targets` \u2014 no new warnings",
+      "labels": [],
+      "merged_at": "2026-04-02T08:19:47Z"
+    },
+    {
+      "title": "feat(cli): add --job flag to run a specific job and --jobs to list them",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/77",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- Add `--job <name>` to `wrkflw run` to execute a single job in isolation, for both GitHub workflows and GitLab pipelines\n- Add `--jobs` flag to `wrkflw list` to display job names within each workflow/pipeline file\n- If the specified job doesn't exist, error message lists all available jobs\n\nCloses #68\n\n## Test plan\n\n- [x] `cargo build` \u2014 compiles cleanly\n- [x] `cargo test` \u2014 all 243 tests pass\n- [x] `wrkflw list --jobs` \u2014 shows jobs grouped under each workflow file\n- [x] `wrkflw run --job <name> <workflow>` \u2014 runs only the specified job\n- [x] `wrkflw run --job nonexistent <workflow>` \u2014 errors with available job names",
+      "labels": [],
+      "merged_at": "2026-04-02T07:52:59Z"
+    },
+    {
+      "title": "fix(docker): persist setup action images across job steps",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/76",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\nFixes #60. Setup actions like `actions/setup-node` and `shivammathur/setup-php` now correctly propagate their Docker images to subsequent `run:` steps instead of falling back to `ubuntu:latest`.\n\n- **Single setup action**: Uses that runtime's image directly (e.g., `node:20-slim` for `setup-node`)\n- **Multiple setup actions**: Builds a combined Docker image with all required runtimes (e.g., PHP + Node.js for Laravel workflows)\n- **No setup actions**: Fully backward compatible \u2014 no behavior change\n- Skips spurious `pull_image` for locally-built `wrkflw-*` images\n- Bumps `build_image` timeout from 2min to 10min for combined image builds\n\n## Changes\n\n- `crates/executor/src/engine.rs`: Added `detect_setup_runtimes()`, `build_combined_runtime_image()`, `resolve_runner_image()`, and `get_install_script()`. Modified `execute_job()` and `execute_matrix_job()` to use the resolved image. Added 14 unit tests.\n- `crates/executor/src/docker.rs`: Skip pull for `wrkflw-*` images, increase build timeout.\n- `tests/workflows/multi-runtime-test.yml`: New test workflow with PHP + Node.js in same job.\n\n## Test plan\n\n- [x] `cargo fmt --all` \u2014 clean\n- [x] `cargo clippy` \u2014 no warnings  \n- [x] `cargo test` \u2014 all 219 tests pass (14 new)\n- [x] Manual test: single Node.js workflow (`setup-node` \u2192 `run: node --version`) \u2014 passes, uses `node:20-slim`\n- [x] Manual test: single PHP workflow (`setup-php` \u2192 `run: php --version`) \u2014 passes, uses `composer:latest`\n- [x] Manual test: multi-runtime workflow (PHP + Node.js in same job) \u2014 passes, builds combined image\n- [x] Manual test: step failure stops job execution \u2014 confirmed working",
+      "labels": [],
+      "merged_at": "2026-04-02T07:04:40Z"
+    },
+    {
+      "title": "fix: actually execute Docker-based GitHub Actions instead of emulating them",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/74",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\nFixes #59 \u2014 third-party Docker-based GitHub Actions (like `super-linter/super-linter/slim@v7`) were silently passing without ever actually running. The engine resolved the action image correctly but then ran `echo 'Would execute GitHub action: ...'` inside it regardless of runtime mode.\n\n**Root cause (two separate failures):**\n- `prepare_action()` errored on `ActionType::DockerBuild` with \"not yet supported\", fell back to `determine_action_image()`, and returned `node:20-slim` for super-linter\n- The `PreparedAction::Image` execution branch had three sub-paths (is_docker, is_local, else) that **all** just ran echo commands \u2014 the resolved image was never actually used\n\n**Changes:**\n- Add `NativeDocker` variant to `PreparedAction` \u2014 runs the image with its built-in ENTRYPOINT (no command override)\n- Implement `DockerBuild` support: clone repo via `shallow_clone`, resolve Dockerfile path from action.yml, build it, return the tag\n- Fix `build_image_inner` to tar the full context directory (not just the Dockerfile) so `COPY` instructions work\n- Allow empty `cmd` in `run_container` to mean \"use image's default ENTRYPOINT/CMD\"\n- Emulation mode gracefully handles empty cmd instead of erroring\n\nThe existing `PreparedAction::Image` path with all special-cased action handling (actions-rs, checkout, etc.) is untouched.\n\n## Test plan\n\n- [x] `cargo build` \u2014 compiles cleanly\n- [x] `cargo test` \u2014 all 171 tests pass\n- [x] `cargo clippy` \u2014 no warnings\n- [x] Manual test: run a workflow with a Docker-based action (e.g., `docker://alpine`) and verify it actually executes\n- [x] Manual test: run a workflow with a DockerBuild action (e.g., super-linter) and verify the Dockerfile is built and run",
+      "labels": [],
+      "merged_at": "2026-04-02T04:58:37Z"
+    },
+    {
+      "title": "Add blogr, feedr, and mdterm to issue 645",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/7865",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [
+        "Community Links"
+      ],
+      "merged_at": "2026-04-02T00:52:30Z"
+    }
+  ]
+}
