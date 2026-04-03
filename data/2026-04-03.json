@@ -1,0 +1,41 @@
+{
+  "date": "2026-04-03",
+  "prs": [
+    {
+      "title": "fix(executor): propagate step outputs and resolve env expressions in composite actions",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/87",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n- **Step outputs were not propagated between composite action steps** \u2014 `execute_composite_action` always passed an empty `HashMap` for `step_outputs`, so `${{ steps.<id>.outputs.<key> }}` always resolved to empty strings within composite actions.\n- **Step env values with `${{ }}` expressions were not resolved** \u2014 values like `toolchain: ${{inputs.toolchain}}` were inserted as literal strings, never run through the expression evaluator.\n- Both bugs together caused `dtolnay/rust-toolchain` (and likely other composite actions) to fail in emulation mode.\n\n## What changed\n1. Added a `composite_step_outputs` map in `execute_composite_action` and call `apply_step_environment_updates` after each step \u2014 same pattern as normal job execution.\n2. Added `preprocess_expressions` call on step env values in `execute_step`, after secret substitution.\n\n## Test plan\n- [x] `cargo fmt --check` passes\n- [x] `cargo clippy --workspace --all-features -- -D warnings` passes\n- [x] All 396 existing tests pass\n- [x] `wrkflw validate` passes on project workflows\n- [x] `wrkflw run --runtime emulation .github/workflows/ci.yml` now succeeds (previously failed on all jobs)",
+      "labels": [],
+      "merged_at": "2026-04-03T10:39:24Z"
+    },
+    {
+      "title": "feat(executor): add GitHub Actions expression evaluator",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/86",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- Adds a full GitHub Actions expression evaluator that handles `${{ }}` expressions with operators, context references, and built-in functions\n- Fixes composite actions like `dtolnay/rust-toolchain` that use complex expressions (e.g. `${{ steps.parse.outputs.toolchain == 'nightly' && inputs.components && ' --allow-downgrade' || '' }}`)\n- Replaces the hardcoded `evaluate_job_condition` pattern-matcher with the expression evaluator for `if:` conditions\n- Adds missing `inputs.*`, `github.*`, `runner.*` context substitution and `RUNNER_OS`/`RUNNER_ARCH` env vars\n\n## What changed\n\n| File | Change |\n|------|--------|\n| `crates/executor/src/expression.rs` | **New** \u2014 recursive-descent expression evaluator (tokenizer, parser, context resolution, built-in functions) |\n| `crates/executor/src/substitution.rs` | Added `inputs.*`/`github.*`/`runner.*` regex patterns, evaluator-powered fallback for complex expressions |\n| `crates/executor/src/engine.rs` | Replaced `evaluate_job_condition` with expression evaluator, fixed command display to show resolved expressions |\n| `crates/executor/src/environment.rs` | Added `RUNNER_OS`, `RUNNER_ARCH`, `RUNNER_NAME`, `RUNNER_ENVIRONMENT` |\n| `crates/executor/src/lib.rs` | Added `pub mod expression` |\n\n## Expression evaluator capabilities\n\n- **Operators**: `==`, `!=`, `<`, `<=`, `>`, `>=`, `&&`, `||`, `!`\n- **Literals**: strings (`'hello'`), numbers, booleans, null\n- **Contexts**: `inputs.*`, `env.*`, `github.*`, `runner.*`, `matrix.*`, `steps.*.outputs.*`\n- **Functions**: `contains()`, `startsWith()`, `endsWith()`, `format()`, `success()`, `failure()`, `always()`, `cancelled()`\n- **Truthiness**: matches GitHub Actions semantics (empty string, 0, false, null are falsy)\n\n## Test plan\n\n- [x] 258 unit tests pass (`cargo test -p wrkflw-executor --lib`)\n- [x] Clippy clean (`cargo clippy -p wrkflw-executor -- -D warnings`)\n- [x] Rustfmt clean\n- [x] Verified against project's own CI workflow \u2014 `${{runner.os}}` resolves to `macOS` correctly\n- [x] dtolnay/rust-toolchain expression pattern evaluated correctly in unit tests",
+      "labels": [],
+      "merged_at": "2026-04-03T07:37:37Z"
+    },
+    {
+      "title": "feat(ui): overhaul TUI and CLI output",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/85",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- **Centralized theme module** (`theme.rs`) \u2014 single source of truth for all colors, styles, symbols, and block/badge helpers. Eliminates ~200 hardcoded `Color::` references scattered across 11 files.\n- **Consistent Unicode symbols** \u2014 replaces the mixed emoji (\u2705\u274c\u23ed\u27f3) with proper single-cell-width Unicode (\u2714\u2716\u2298\u25c9\u25cb\u25b8) that don't break column alignment in terminals.\n- **Upgraded ratatui 0.23\u21920.28 and crossterm 0.26\u21920.28** \u2014 migrated all breaking API changes (`Frame` generics removed, `Table::new` signature, `f.size()\u2192f.area()`).\n- **Colored CLI output** (`cli_style.rs`) \u2014 validate, execute, and list commands now have proper colored output with tree-style rendering (`\u251c\u2500\u2500\u2514\u2500\u2500`), replacing raw `println!` with zero styling.\n- **Braille spinner animation** for running workflow states, cycling on tick.\n- **Visual polish** \u2014 numbered tabs (`1\u00b7Workflows`), box-drawing dividers, `[\u2714]/[ ]` checkboxes, underlined table headers, themed status badges, compact status bar hints, breadcrumb navigation in job detail, cleaned up help tab with fixed-width key columns.\n- **Removed redundant UI** \u2014 instruction headers in workflows/logs tabs (status bar already shows same hints), reclaiming vertical space.\n\nNet diff: **-97 lines** (1287 added, 1384 removed). The UI got better *and* smaller.\n\n## Test plan\n\n- [x] `cargo build` compiles cleanly\n- [x] `cargo test` \u2014 all 16 UI tests + full workspace tests pass\n- [x] `cargo run -- tui` \u2014 visually verify all 4 tabs render correctly\n- [x] `cargo run -- validate .github/workflows/` \u2014 verify colored CLI output\n- [x] `cargo run -- list --jobs` \u2014 verify tree-style colored listing\n- [x] Test in both wide (120+ col) and narrow (80 col) terminals\n- [x] Verify spinner animates for running workflows",
+      "labels": [],
+      "merged_at": "2026-04-03T06:23:30Z"
+    },
+    {
+      "title": "fix(themes): normalize theme name lookup to handle all naming variants",
+      "url": "https://github.com/bahdotsh/blogr/pull/105",
+      "repo": "bahdotsh/blogr",
+      "repo_url": "https://github.com/bahdotsh/blogr",
+      "body": "## Summary\n\nFixes #104 \u2014 `blogr init` followed by `blogr serve` fails with \"Theme 'minimal-retro' not found\" because the config stores `\"minimal-retro\"` but the theme registers as `\"Minimal Retro\"`.\n\n- Add `normalize_theme_name()` in `blogr-themes` that lowercases and replaces hyphens/underscores with spaces, so `\"minimal-retro\"`, `\"Minimal Retro\"`, and `\"minimal_retro\"` all resolve correctly\n- Add `ThemeInfo::slug()` for canonical config-file form (lowercase, hyphenated)\n- Fix all write paths (theme set, config set, TUI) to store the slug\n- Fix all comparison paths to use normalization\n- Fix newsletter test that relied on the broken lookup behavior\n\n## Test plan\n\n- [x] `cargo test --workspace` \u2014 all 134 tests pass\n- [x] `cargo clippy --all-targets --all-features -- -D warnings` \u2014 clean\n- [x] `cargo fmt --all -- --check` \u2014 clean\n- [x] Manual: `blogr init test-blog && cd test-blog && blogr serve` should work without error",
+      "labels": [],
+      "merged_at": "2026-04-03T02:29:58Z"
+    }
+  ]
+}
