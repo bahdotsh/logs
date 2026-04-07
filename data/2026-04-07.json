@@ -1,0 +1,23 @@
+{
+  "date": "2026-04-07",
+  "prs": [
+    {
+      "title": "fix(llm): prevent shell command injection via --exec flag",
+      "url": "https://github.com/bahdotsh/indxr/pull/25",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- Replace `sh -c` invocation in `src/llm/command.rs` with `shlex::split()` + direct execution to prevent shell metacharacter injection via `--exec` flag and `INDXR_LLM_COMMAND` env var\n- Add `shlex` as a direct dependency (already a transitive dep)\n- Commands with arguments (e.g. `my-llm --model gpt4`) still work correctly via shlex tokenization\n\nCloses #23\n\n## Test plan\n\n- [x] `cargo clippy --features wiki` \u2014 clean\n- [x] `cargo fmt` \u2014 clean\n- [x] `cargo test` \u2014 all 358 tests pass\n- [x] Manual: `indxr wiki generate --exec 'echo test; echo injected'` fails to find binary instead of executing injection",
+      "labels": [],
+      "merged_at": "2026-04-07T13:07:17Z"
+    },
+    {
+      "title": "feat(wiki): wiki_record_failure tool for learning from mistakes",
+      "url": "https://github.com/bahdotsh/indxr/pull/24",
+      "repo": "bahdotsh/indxr",
+      "repo_url": "https://github.com/bahdotsh/indxr",
+      "body": "## Summary\n\n- Adds `FailurePattern` struct to wiki page frontmatter for recording failed fix attempts (symptom, attempted_fix, diagnosis, actual_fix, source_files, timestamps)\n- New `wiki_record_failure` MCP tool with auto-routing to best matching wiki page via existing `score_pages()`, or creates a new topic page\n- Extends `wiki_contribute` with `failures` and `resolve_failures` params (mirrors existing contradiction resolution pattern)\n- Enhances `wiki_search` to score against failure symptoms and surface failure counts in results (+ `include_failures: true` for full details)\n- Enhances `wiki_read` and `wiki_status` to display failure data\n\n## Motivation\n\nWhen AI agents fail at fixing issues, that failure context is lost when the conversation ends. The next agent starts from scratch and may repeat the same mistakes. This feature lets agents record structured failure patterns into the wiki so future agents can learn from past failures before attempting similar fixes.\n\n## Changes\n\n| File | Changes |\n|------|---------|\n| `src/wiki/page.rs` | `FailurePattern` struct, `failures` field on `Frontmatter`, 2 new tests |\n| `src/wiki/mod.rs` | Preserve failures in `compound_into_wiki` |\n| `src/wiki/generate.rs` | Add `failures` field to 3 Frontmatter constructions |\n| `src/mcp/tools.rs` | `wiki_record_failure` tool def + impl, `wiki_contribute` extension, `wiki_search`/`wiki_read`/`wiki_status` enhancements |\n| `src/mcp/mod.rs` | Dispatch + import for `wiki_record_failure` |\n| `src/mcp/tests.rs` | 12 new tests, fixture updates, tool count assertion |\n| `CLAUDE.md` | Document new tool (#34), update tool count |\n\n## Test plan\n\n- [x] `cargo build --features wiki` compiles cleanly\n- [x] `cargo build` (without wiki) compiles cleanly\n- [x] `cargo test --features wiki` \u2014 all 432 unit + 7 integration = 439 tests pass\n- [x] New tests cover: auto-routing, explicit page targeting, new page creation, missing params, contribute with failures, failure resolution, search counts/symptoms/include_failures flag, read display\n- [x] Manual MCP test: start server, call `wiki_record_failure`, verify via `wiki_search`/`wiki_read`/`wiki_status`",
+      "labels": [],
+      "merged_at": "2026-04-07T12:38:06Z"
+    }
+  ]
+}
