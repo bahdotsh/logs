@@ -1,0 +1,14 @@
+{
+  "date": "2026-04-11",
+  "prs": [
+    {
+      "title": "feat: add diff-aware selective execution and watch mode",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/91",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- **Diff-aware execution**: `wrkflw run --diff` parses workflow `on:` trigger configs (paths, branches, tags) and evaluates them against the local git diff \u2014 only workflows whose filters match will execute. This is a feature `act` completely lacks.\n- **Watch mode**: `wrkflw watch` uses filesystem monitoring (`notify` crate) with debouncing to detect changes and automatically re-run affected workflows.\n- **TUI integration**: Press `d` in the TUI to toggle a diff filter overlay showing which workflows would trigger based on current changes.\n\n### New crates\n- `wrkflw-trigger-filter` \u2014 parses `on_raw` YAML into structured trigger configs, matches against event context (38 unit tests)\n- `wrkflw-watcher` \u2014 filesystem watcher with debouncing and trigger-aware execution\n\n### CLI additions\n```\nwrkflw run --diff .github/workflows/ci.yml\nwrkflw run --event pull_request --diff .github/workflows/ci.yml\nwrkflw run --changed-files src/main.rs,src/lib.rs .github/workflows/ci.yml\nwrkflw watch [--debounce 500] [--event push]\n```\n\n### Design decisions\n- Shells out to `git diff --name-only` instead of adding `git2`/libgit2 C dependency\n- Uses `glob::Pattern` (already in workspace) for GitHub Actions-compatible path matching\n- Default behavior unchanged \u2014 no flags means run everything as before\n\n## Test plan\n- [x] 38 unit tests across trigger-filter crate (parser, path matcher, ref matcher, evaluator)\n- [x] 2 unit tests for watcher debouncer\n- [x] Full workspace `cargo test` passes (all existing tests unaffected)\n- [x] `cargo clippy --workspace` clean\n- [x] `cargo fmt --all` applied\n- [ ] Manual: `wrkflw run --diff` in a repo with path-filtered workflows\n- [ ] Manual: `wrkflw watch` detects file changes and triggers correct workflows\n- [ ] Manual: TUI `d` key toggles diff filter with green/gray indicators",
+      "labels": [],
+      "merged_at": "2026-04-11T14:57:35Z"
+    }
+  ]
+}
