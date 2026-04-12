@@ -1,0 +1,14 @@
+{
+  "date": "2026-04-12",
+  "prs": [
+    {
+      "title": "refactor(watcher,wrkflw): finish draining god-files into modules",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/92",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\nFinish the module split started in earlier commits: lift the watcher's\nmain loop + git-state cache into dedicated modules, extract the CLI's\nRun/Watch arms into sibling command modules, and collapse a copy-pasted\n`pull_request + no base-branch` rejection into a single shared helper.\n\nWhile at it, fix a silent-skip hole where persistent workflow-rescan\nfailures were logged at `debug` level \u2014 a non-verbose user would never\nsee their new workflow being ignored session-long. Bumped to `warning`.\n\n### Watcher crate\n- New `git_state.rs` \u2014 `CachedGitState` + `GitStateCache` owning the TTL-bounded `(branch, tag)` mutex.\n- New `reactor.rs` \u2014 lifted `run_loop`, `evaluate_and_execute`, `refresh_trigger_cache_async`, `canonicalize_changed_paths` out of `WorkflowWatcher` as private free functions.\n- `WorkflowWatcher::run` is now a 3-line forward to `reactor::run_loop`.\n- `cached_git_state` kept as a `#[cfg(test)]` method shim (two staleness tests pin through it).\n- `watcher.rs`: **2071 \u2192 1218** lines (~300 non-test).\n\n### wrkflw binary\n- New `prefilter.rs` \u2014 `PrefilterDecision`, `PrefilterRequest`, `run_trigger_prefilter`, `build_event_context`, `apply_base_branch`, `effective_strict_filter`, all 7 `prefilter_tests`.\n- New `validate_event_requires_base_branch` helper shared between the run and watch commands \u2014 previously each had its own inline copy of the rejection/warning text.\n- New `run_workflow_cmd.rs` / `watch_cmd.rs` \u2014 Run and Watch arm bodies moved into sibling modules with `RunCtx` / `WatchCtx` structs.\n- `main.rs`: **2039 \u2192 937** lines.\n\n### Bug fix\n- Escalated persistent workflow-rescan failures from `debug` \u2192 `warning` (was silent-skip against a stale workflow-files snapshot, directly under a comment calling out the hazard).\n\n## Test plan\n- [x] `cargo test --workspace` \u2014 46/46 watcher tests pass, 7/7 prefilter tests pass, everything else green\n- [x] `cargo clippy --workspace -- -D warnings` \u2014 clean\n- [x] `cargo fmt --all --check` \u2014 clean\n- [x] Public API unchanged (`WorkflowWatcher`, `WatcherConfig`, `WatchEvent`, `ShutdownSignal`, `DEFAULT_MAX_CONCURRENT_EXECUTIONS` re-exports preserved)\n- [x] Manual smoke: `cargo run -- run .github/workflows/build.yml --event push --diff`\n- [x] Manual smoke: `cargo run -- watch --event pull_request --base-branch main`\n- [x] Manual smoke: trigger a rescan failure (`chmod 000 .github/workflows` mid-session) and confirm the new warning surfaces",
+      "labels": [],
+      "merged_at": "2026-04-11T18:44:42Z"
+    }
+  ]
+}
