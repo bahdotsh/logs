@@ -1,0 +1,23 @@
+{
+  "date": "2026-04-14",
+  "prs": [
+    {
+      "title": "fix(evaluator): make toJSON(env) return env object instead of null",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/96",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- `toJSON(env)` was returning `\"null\"` because `ExprValue` had no Object variant \u2014 bare `env` fell through all `resolve()` match arms to `Null`\n- Adds `Object(HashMap<String, ExprValue>)` variant to `ExprValue`, with proper handling in `is_truthy`, `to_output_string`, `toJSON`, and comparison helpers\n- Bare `env` now resolves to an Object containing user-set env vars (excludes system-injected `GITHUB_*`, `RUNNER_*`, `INPUT_*`, `WRKFLW_*`, `CI` keys)\n- `toJSON(env)` produces sorted, pretty-printed JSON matching real GitHub Actions behavior\n\n## Test plan\n\n- [x] `tojson_env_returns_object` \u2014 verifies JSON output contains only user env vars, excludes system vars\n- [x] `tojson_env_sorted_keys` \u2014 verifies keys are alphabetically sorted\n- [x] `bare_env_is_truthy` \u2014 verifies `env` object is truthy\n- [x] `bare_env_to_output_string` \u2014 verifies `${{ env }}` renders as `[object Object]`\n- [x] All 55 expression tests pass",
+      "labels": [],
+      "merged_at": "2026-04-14T10:38:34Z"
+    },
+    {
+      "title": "fix(executor): populate workflow-level env in expression context",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/95",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- `WorkflowDefinition` was missing an `env` field \u2014 serde silently discarded workflow-level `env:` during YAML deserialization\n- `${{ env.GLOBAL_VAR }}` evaluated to empty string while `$GLOBAL_VAR` in shell worked fine, because the OS environment got the vars but the expression evaluator never did\n- Added the `env` field to `WorkflowDefinition` and merged it into `env_context` right after `create_github_context()`, giving correct precedence: step > job > workflow (matching GitHub Actions)\n\n## Test plan\n\n- [x] All existing tests pass (`cargo test`)\n- [x] Verified end-to-end: `${{ env.ANOTHER_VAR }}` resolves workflow-level env correctly\n- [x] Verified precedence: job-level `env` overrides workflow-level when both define the same key\n- [x] CI passes",
+      "labels": [],
+      "merged_at": "2026-04-14T04:41:11Z"
+    }
+  ]
+}
