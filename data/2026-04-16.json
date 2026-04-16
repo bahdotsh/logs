@@ -1,0 +1,14 @@
+{
+  "date": "2026-04-16",
+  "prs": [
+    {
+      "title": "feat(evaluator): make toJSON(steps) return nested steps object",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/97",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\n- `toJSON(steps)` was returning `null` instead of the nested `{ step_id: { outputs: {...}, outcome, conclusion } }` object that GitHub Actions provides\n- Added a `\"steps\" if parts.len() == 1` match arm in `resolve()` that builds a nested `ExprValue::Object` from both `step_outputs` and `step_statuses` maps\n- Unions keys from both maps so steps appearing in either are included\n\n## Test plan\n\n- [x] `tojson_steps_returns_nested_object` \u2014 full nested structure with outputs + statuses\n- [x] `tojson_steps_empty_context` \u2014 empty steps \u2192 `{}`\n- [x] `tojson_steps_sorted_keys` \u2014 alphabetical key ordering\n- [x] `tojson_steps_status_without_outputs` \u2014 step with outcome/conclusion but empty outputs\n- [x] `tojson_steps_outputs_without_status` \u2014 step with outputs but no status entry\n- [x] `bare_steps_is_truthy` \u2014 bare `steps` with data is truthy\n- [x] `tojson_steps_special_characters_in_outputs` \u2014 quotes, backslashes, unicode in output values\n- [x] All 59 expression tests pass",
+      "labels": [],
+      "merged_at": "2026-04-16T10:42:23Z"
+    }
+  ]
+}
