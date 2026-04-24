@@ -1,0 +1,23 @@
+{
+  "date": "2026-04-24",
+  "prs": [
+    {
+      "title": "Add wrkflw v0.8.0 announcement",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/7963",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-04-24T03:02:01Z"
+    },
+    {
+      "title": "feat(viewer): add h and ? as help keys alongside F1",
+      "url": "https://github.com/bahdotsh/mdterm/pull/53",
+      "repo": "bahdotsh/mdterm",
+      "repo_url": "https://github.com/bahdotsh/mdterm",
+      "body": "## Summary\n- Fixes #44 \u2014 Terminator terminal emulator intercepts `F1` for its own help, so mdterm's help overlay was unreachable there.\n- Binds `h` / `H` to open help from markdown Normal mode (vim-style).\n- Wires `?` into the global help toggle next to `F1`, so JSON view and slide mode (where `h` is already bound) also get a non-conflicting way to open help.\n- `?` is gated out of Search and FuzzyHeading modes where it's a legitimate input character.\n- Status bar hint now reads `? help`; help overlay lists `h / ? / F1`.\n\n## Test plan\n- [x] Markdown file: press `h` \u2192 help opens; press `h` / `?` / `Esc` / `q` \u2192 closes.\n- [x] Markdown file: press `F1` \u2192 still works (toggle).\n- [x] JSON file: press `h` \u2192 node collapses (unchanged); press `?` \u2192 help opens.\n- [x] Slide mode: press `h` \u2192 previous slide (unchanged); press `?` \u2192 help opens.\n- [x] Search mode (`/foo?bar`): `?` is accepted as regex input, does not open help.\n- [x] Fuzzy heading mode (`:`): typing `?` as part of a query does not open help.\n- [x] `cargo build` / `cargo fmt` clean.",
+      "labels": [],
+      "merged_at": "2026-04-23T18:58:09Z"
+    }
+  ]
+}
