@@ -1,0 +1,14 @@
+{
+  "date": "2026-05-07",
+  "prs": [
+    {
+      "title": "fix(summary): stabilize \"What's New\" feed order with name tie-break",
+      "url": "https://github.com/bahdotsh/feedr/pull/38",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "Closes #37\n\n## Summary\n- The \"What's New since last visit\" summary was sorting feeds by new-item count only, which is not a total order. Two feeds tied on count came out in whatever order Rust's `HashMap` happened to iterate that frame; since the summary re-renders on every tick, tied feeds visibly shuffled several times per second.\n- Fix is one line in `get_summary_stats`: chain a name tie-breaker after the count comparison (`b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0))`) \u2014 count descending, then name ascending. Preserves the existing UX (highest count first) and gives ties a stable, intuitive order.\n- The reporter's suggested snippet (`sort_by_key(|(name, count)| (count, name))`) would have inverted the dominant ordering \u2014 the `then_with` form keeps it descending and survives the existing sorting test.\n\n## Clippy cleanup\n- The repo had 16 pre-existing `clippy::collapsible_match` warnings in `src/events.rs` and `src/config_tui.rs` blocking `-D warnings`. Most are technically safe to collapse, but the demo-feed shortcuts (`KeyCode::Char('1'/'2'/'3')`) cannot be \u2014 CLAUDE.md notes those number keys are intentionally hardcoded as no-ops, and collapsing would let user-configured bindings on those keys fire when feeds are present.\n- Clippy itself classifies the suggestions as `MaybeIncorrect` (so `cargo clippy --fix` skips them). Added function-scoped `#[allow(clippy::collapsible_match)]` on `handle_key_event`, `handle_mouse_event`, and `run_editor`, with a comment explaining the rationale on the most-affected handler.\n\n## Test plan\n- [x] `cargo fmt --all -- --check` \u2014 clean\n- [x] `cargo clippy --all-targets --all-features -- -D warnings` \u2014 clean\n- [x] `cargo test` \u2014 81 unit + 4 integration tests pass, including the new `test_get_summary_stats_tie_break_by_name` which calls `get_summary_stats` twice and asserts the output is identical (regression guard against HashMap-induced flicker)\n- [ ] Manual verification: open the \"What's New\" screen with two or more feeds tied on new-item count and confirm the order no longer shifts between frames",
+      "labels": [],
+      "merged_at": "2026-05-07T10:06:04Z"
+    }
+  ]
+}
