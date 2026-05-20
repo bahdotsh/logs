@@ -1,0 +1,14 @@
+{
+  "date": "2026-05-20",
+  "prs": [
+    {
+      "title": "Add \"Why I built wrkflw\" to Observations/Thoughts",
+      "url": "https://github.com/rust-lang/this-week-in-rust/pull/8094",
+      "repo": "rust-lang/this-week-in-rust",
+      "repo_url": "https://github.com/rust-lang/this-week-in-rust",
+      "body": "",
+      "labels": [],
+      "merged_at": "2026-05-20T00:23:51Z"
+    }
+  ]
+}
