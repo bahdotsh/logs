@@ -1,0 +1,14 @@
+{
+  "date": "2026-06-11",
+  "prs": [
+    {
+      "title": "feat(config): add ui.show_preview to open preview pane at launch",
+      "url": "https://github.com/bahdotsh/feedr/pull/48",
+      "repo": "bahdotsh/feedr",
+      "repo_url": "https://github.com/bahdotsh/feedr",
+      "body": "## Summary\n\nAdds a `ui.show_preview` config option (bool, default `false`) so the dashboard preview pane can start open at launch instead of requiring `p` every session. Requested in #40, where the use case is reddit megathread feeds that are basically unreadable without the preview pane.\n\n- `show_preview = true` under `[ui]` in `config.toml` opens the preview pane at startup; `p` still toggles it at runtime\n- Exposed through all existing config surfaces: `feedr config list` / `get` / `set` (with `true`/`false` validation) and the TUI config editor (`feedr config --tui`, Enter toggles it)\n- `#[serde(default)]` keeps existing config files loading unchanged \u2014 omitted key means `false`, i.e. exactly today's behavior\n- Composes with compact mode as before: the preview pane stays suppressed while compact mode is active\n- Documented in the README and in the generated config-file comments\n\nAlso fixes `test_toggle_preview_pane`, which asserted the launch default of `App::new()` \u2014 that default now depends on the developer's real `~/.config/feedr/config.toml`, so the test now sets its initial state explicitly and asserts only toggle behavior.\n\nFixes #40\n\n## Test plan\n\n- [x] `cargo test` \u2014 215 tests pass, including two new unit tests: back-compat parse of a `[ui]` table without the key, and `get_value`/`validate_and_set` round-trip with invalid-value rejection\n- [x] `cargo clippy --all-targets --all-features -- -D warnings` clean\n- [x] `cargo fmt --all -- --check` clean\n- [x] Manual: with `show_preview = true`, launch opens the dashboard with the preview pane visible; `p` hides it; relaunch shows it again",
+      "labels": [],
+      "merged_at": "2026-06-11T17:34:34Z"
+    }
+  ]
+}
