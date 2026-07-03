@@ -1,0 +1,14 @@
+{
+  "date": "2026-07-03",
+  "prs": [
+    {
+      "title": "fix(ui): show real timestamps for remaining bare TUI log pushes",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/119",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Summary\n\nFollow-up to #116, which routed most app-generated TUI log messages through `add_timestamped_log` but missed four bare `self.logs.push(...)` sites. Those lines lack the `[HH:MM:SS]` prefix the log renderer parses, so they still displayed `??:??:??` in the Execution/Logs tabs.\n\n## Changes\n\n- Convert the four remaining sites in `crates/ui/src/app/state.rs` to `add_timestamped_log`:\n  - `cycle_diff_filter_event` \u2014 \"Diff filter event: {} -> {}\"\n  - `trigger_tab_copy_curl` \u2014 \"curl: ...\" recipe lines\n  - `trigger_dispatch` \u2014 \"Dispatching {} to {:?} (branch: {})\"\n  - `drain_trigger_outcomes` \u2014 \"Dispatched ...\" / \"Dispatch ... failed: ...\"\n- Remove the three `trim_logs_to_cap()` calls (and the `drained` counter gating one of them) that only existed because the bare pushes bypassed `add_log`'s built-in trim.\n- Widen `LogProcessor::process_log_entry` to `pub(crate)` so state tests can assert end-to-end behavior.\n\n## Testing\n\nThree new tests call the real methods and run the actual appended log lines through the real parser, asserting the extracted timestamp is not `??:??:??`. The `trigger_dispatch` site is not exercised end-to-end (it `tokio::spawn`s a real dispatch) and is covered by pattern parity with the tested sites.\n\n`cargo test -p wrkflw-ui`: 57 passed. `cargo clippy -p wrkflw-ui --all-targets`: clean.",
+      "labels": [],
+      "merged_at": "2026-07-03T05:16:19Z"
+    }
+  ]
+}
