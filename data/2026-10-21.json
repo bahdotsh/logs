@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-21",
+  "prs": [
+    {
+      "title": "docs: point the READMEs at the published 0.30.0 packages",
+      "url": "https://github.com/Offline-Protocol/offline-protocol-sdk/pull/600",
+      "repo": "Offline-Protocol/offline-protocol-sdk",
+      "repo_url": "https://github.com/Offline-Protocol/offline-protocol-sdk",
+      "body": "Post-release re-point, as #553 did for 0.29.0.\n\n- `README.md`: Swift snippet `from: \"0.30.0\"`. The Android paragraph said the library \"is not on Maven Central yet\" and that the transport managers are not in it. Both have been wrong since 0.29.0, when `com.offlineprotocol:offline-protocol-sdk` (the full AAR built from the bridge sources) went to Central. It now gives the Gradle line and says the release zip holds only the generated bindings and native libraries.\n- `bindings/java/README.md`: `offline-protocol-java:<version>` becomes `0.30.0`, the first release on Central.\n- `bindings/python/README.md`, `bindings/python/docker/README.md`: wheel build, image pull/inspect/attest and `SDK_VERSION` examples name 0.30.0. The three \"from 0.29.0\" lines are historical and stay.\n\nEvery markdown link and anchor in the repo still resolves (three known false positives).",
+      "labels": [],
+      "merged_at": "2026-10-21T13:10:27Z"
+    },
+    {
+      "title": "chore(release): 0.30.0",
+      "url": "https://github.com/Offline-Protocol/offline-protocol-sdk/pull/599",
+      "repo": "Offline-Protocol/offline-protocol-sdk",
+      "repo_url": "https://github.com/Offline-Protocol/offline-protocol-sdk",
+      "body": "Cuts 0.30.0: v0.29.0 plus the 30 commits since (#527 to #596).\n\n## What ships\n\n- **Security:** the telemetry uploader trusts only the ingest's sixteen issuer roots (eMudhra compromise, ADR 0031). 0.26.0 to 0.29.0 with telemetry on are exposed until this ships.\n- **New bindings:** C API (#570 to #574), Java (#582), Flutter preview (#581); React Native `sendFileFromPath` (#592) and `signDataBytes` (#561).\n- **BLE under load:** the volume-test fixes (#583), #558, #560, the BlueZ fixes (#576, #577), RN event replay (#562).\n- **Build:** UniFFI 0.32 (#578), LTO reaching shipped libraries (#579), the `mobile` size profile (#580), py.typed + `__all__` (#586, #590).\n- **Telemetry counts only app messages** (#593).\n\n## Files\n\nSame set as the 0.29.0 cut (#552), plus `bindings/flutter/offline_protocol/pubspec.yaml`, which is new in the version table:\n\n- `Cargo.toml` (workspace + 11 internal deps), sealed/leaf local deps (4), `Cargo.lock`, the two tool lockfiles\n- `pyproject.toml`, `pubspec.yaml`, RN `package.json` + lock, demo-app lock\n- `THIRD-PARTY-NOTICES.md` x3 (regenerated)\n- `CHANGELOG.md`: release header, Security moved first, PR refs stripped, stale \"482 exported functions\" count dropped\n- `docs/changelog/0.29.md` + both archive tables\n- `SECURITY.md` supported line, `docs/UPGRADING.md` \u00a728\n\n**UPGRADING correction:** \u00a728 said \"Nothing breaks a build\". Two things do: the UniFFI 0.32 floors (Rust 1.91 to build `offline-protocol-uniffi`, Swift 5.10 / Xcode 15.3 for the iOS bridge) and `BleTransport::record_send_success` / `record_send_failure`, which were `pub` in 0.29.0. \u00a728 now covers them plus the telemetry delivered-count drop and the `latency_ms` change.\n\n## Verified locally\n\n- `cargo fmt --all -- --check`, `cargo clippy --workspace --locked -- -D warnings`, `cargo test --workspace --lib --locked` (3330 passed), `RUSTDOCFLAGS=\"-D warnings\" cargo doc --workspace --no-deps --locked`\n- `scripts/check-license-consistency.sh`\n- Every user-facing PR in `v0.29.0..main` has a CHANGELOG entry. The ones without an entry are #570/#571 (folded into the C API entry), three dependency bumps and three docs PRs.\n- The shipped 0.29.0 section is byte-identical to the tag's. The archive move is lossless (after the link rewrite the diff is one trailing blank line).\n- Every markdown link and anchor in the repo resolves, apart from three known false positives (example text and a regex).\n- All 12 publishable crates are at `max_version` 0.29.0 on crates.io, so there is nothing to reserve.\n\n## Before tagging\n\n- Fix the `## [0.30.0] \u2014 2026-10-21` date if the merge lands on another day.\n- `workflow_dispatch` dry run with `version: 0.30.0`. First release with the Java jar on Maven Central and the Flutter pubspec gate, so those release jobs have never run.\n- After the release: dispatch the Swift dist `publish.yml` for 0.30.0, re-point the READMEs, and publish a GHSA for the telemetry root trust.",
+      "labels": [],
+      "merged_at": "2026-10-21T10:44:03Z"
+    }
+  ]
+}
