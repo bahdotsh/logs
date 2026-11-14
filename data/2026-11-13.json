@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-13",
+  "prs": [
+    {
+      "title": "fix: agree with GitHub on real repositories, and build job images faster",
+      "url": "https://github.com/bahdotsh/wrkflw/pull/171",
+      "repo": "bahdotsh/wrkflw",
+      "repo_url": "https://github.com/bahdotsh/wrkflw",
+      "body": "## Problem\n\nRunning real repositories was slow and sometimes wrong:\n\n- Each leg of a matrix rebuilt the same packages in its own image.\n- An image that failed to build was built a second time at the job's turn.\n- A busy engine failed container creation at 15 seconds.\n- A few parsing rules disagreed with GitHub.\n\n## Changes\n\n**Image builds**\n- The job image is split into a shared packages layer plus one layer per runtime. The shared layers are built once, as an image of their own, where the runtime reuses build layers (Docker, Podman; not Kubernetes).\n- Images are built ahead while a job waits for its turn, capped at four across the process, and one at a time where the run limits its jobs.\n- BuildKit is used through the `docker` CLI where it builds into the same engine; otherwise the engine's own builder is used. `WRKFLW_IMAGE_BUILDER=classic` skips BuildKit.\n- A build that failed on its own is remembered for the run and not repeated. A build that timed out or lost its connection is tried again.\n- The runner's Node.js comes from nodejs.org, checked against its published checksum, with the distribution's package as the fallback.\n- Each runtime's install refreshes the package lists first, since it is now a layer of its own.\n\n**Containers**\n- The engine gets 120 seconds to create or start a container. One whose creation timed out is tracked by name and removed later.\n- Cleanup passes quietly over a container that was never created, and removes by force one that didn't stop in time.\n- A step that only prints a line starts no container.\n\n**Agreement with GitHub**\n- Matrix keys may contain hyphens (`matrix.python-version`).\n- `schedule` accepts its list of `cron` entries.\n- A push run no longer takes a base branch from the pull requests it lists.\n\n**Refactor**\n- Image building and BuildKit move out of `engine.rs` into `image_build.rs` and `buildkit.rs`.\n\n## Testing\n\n`cargo build --workspace --all-targets`, `cargo clippy --workspace --all-targets` (no warnings) and `cargo test --workspace` (all suites pass) were run locally on the final commit.\n\n## Known follow-ups\n\n- Run the downloaded Node before copying it under `/usr/local`, so a base with an old glibc falls back to the distribution's package.\n- Log a failed BuildKit probe and don't cache it for the process; document `WRKFLW_IMAGE_BUILDER`.\n- Add tests for the BuildKit dispatch in `DockerRuntime::build_image_inner`.\n- `wrkflw-combined:shared-*` images are never pruned.\n- `ContainerError::ImageBuildTimeout` is a new variant on a public enum.",
+      "labels": [],
+      "merged_at": "2026-11-13T17:01:53Z"
+    }
+  ]
+}
