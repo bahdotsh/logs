@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-17",
+  "prs": [
+    {
+      "title": "chore: waive RUSTSEC-2026-0543 (chrono unmaintained)",
+      "url": "https://github.com/Offline-Protocol/offline-protocol-sdk/pull/755",
+      "repo": "Offline-Protocol/offline-protocol-sdk",
+      "repo_url": "https://github.com/Offline-Protocol/offline-protocol-sdk",
+      "body": "## Why\n\nThe Dependency Audit job is failing on `main` (runs for #751 and #752) and will fail on every open pull request. Nothing merged caused it: RUSTSEC-2026-0543 was published today and marks `chrono` unmaintained, all versions affected, no safe upgrade.\n\n```\nerror[unmaintained]: chrono is unmaintained\n  chrono 0.4.45\n  ID: RUSTSEC-2026-0543\nadvisories FAILED, bans ok, licenses ok, sources ok\n```\n\n## What\n\n- `deny.toml`: waive RUSTSEC-2026-0543, with the rationale.\n- `.cargo/audit.toml`: the same id, since that list must stay a superset of `deny.toml`'s.\n\n## What this does not do\n\n`chrono` is a direct workspace dependency of `offline-protocol`, `offline-protocol-mls`, `offline-protocol-reliability` and `offline-protocol-router`, compiled and shipped. The waiver is a notice-not-vulnerability call that buys time; the remedy is a migration to `jiff` or `time`, which touches persisted and serialized timestamps and belongs in its own pull request. The waiver comment says to drop it there.\n\n## Verification\n\n- `cargo deny --all-features check`: `advisories ok, bans ok, licenses ok, sources ok` (the same command CI runs).\n- `cargo audit`: reported RUSTSEC-2026-0543 before the change, does not after.",
+      "labels": [],
+      "merged_at": "2026-11-17T10:41:13Z"
+    }
+  ]
+}
